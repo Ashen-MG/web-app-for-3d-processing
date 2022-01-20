@@ -1,0 +1,5 @@
+@use "app/styles/sizing.module";
+
+.navbar {
+  height: sizing.$navbarWidth;
+}

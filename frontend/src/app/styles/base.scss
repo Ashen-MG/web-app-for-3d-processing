@@ -1,0 +1,17 @@
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* TODO: redefine in bootstrap variables */
+.algorithmParameter {
+  color: white;
+  background-color: transparent;
+
+  &:hover, &:focus, &:active {
+    color: white;
+    background-color: transparent;
+  }
+}
+
+/* TODO (enhancement): custom scrollbar */
