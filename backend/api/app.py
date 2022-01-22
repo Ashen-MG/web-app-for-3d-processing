@@ -3,8 +3,10 @@ import os
 import re
 import zipfile
 from typing import Dict
+from shutil import copyfile
+import random
 
-from flask import Flask, send_file, request
+from flask import Flask, send_file, request, url_for
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
@@ -68,16 +70,33 @@ def upload():
   # TODO: validation
   # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
   file = request.files["file"]
-  file.save(os.path.join(app.root_path, f"static/uploads/original.{file.filename.split('.')[-1]}"))
-  return {}
 
+  # we'll see if there will be any use for storing the original file
+  originalStaticFilepath = f"uploads/original.{file.filename.split('.')[-1]}"
+  originalFilepath = os.path.join(app.root_path, "static", originalStaticFilepath)
+
+  # file to which new processing updates are going to be saved
+  currentFilepath = f"uploads/current.{file.filename.split('.')[-1]}"
+
+  file.save(os.path.join(app.root_path, "static", originalFilepath))
+  copyfile(originalFilepath, os.path.join(app.root_path, "static", currentFilepath))  # https://stackoverflow.com/questions/123198/how-to-copy-files
+
+  return {
+    "fileURL": url_for("static", filename=currentFilepath) + "?v=1"
+  }
+
+# TODO: different extension
 @app.route("/api/algorithms/voxel-downsampling", methods=["POST"])
 def voxel_downsampling():
   # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
   voxelSize = request.json["voxelSize"]
-  outputFilename = "static/processed_files/current.ply"
-  voxelDownsampling("static/uploads/original.ply", outputFilename, voxelSize)
-  return send_file(outputFilename)
+  filepath = os.path.join(app.root_path, "static/uploads/current.ply")
+  voxelDownsampling(filepath, filepath, voxelSize)
+
+  return {
+    "fileURL": url_for("static", filename="uploads/current.ply") + f"?v={''.join([str(random.randint(0, 100)) for _ in range(30)])}"
+  }
+  # return send_file(filename)
 
 # https://stackoverflow.com/questions/46805813/set-the-http-status-text-in-a-flask-response
 
