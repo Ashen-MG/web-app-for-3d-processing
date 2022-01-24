@@ -10,6 +10,8 @@ import {hideConvertModal, setCurrentBackendFileUrl, showConvertModal} from "app/
 import {UploadedFileProp} from "app/App";
 import {useMutation} from "react-query";
 import {apiConvert, apiUpload} from "app/adapters";
+import {createApiURI} from "app/helpers/global";
+import styles from "./styles/convert_modal.module.scss";
 
 export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 
@@ -63,6 +65,7 @@ const conversionOptions: ConversionOptions[] = [
 const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 
 	const [selectedConversionOptions, setSelectedConversionOptions] = useState<ConversionOptions[]>([]);
+	const [downloadURI, setDownloadURI] = useState<string | undefined>();
 
 	const { mutateAsync: asyncApiConvert } = useMutation(["convert", selectedConversionOptions],
 		() => apiConvert(
@@ -71,7 +74,7 @@ const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 		{
 			onSuccess: (response) => {
 				// TODO: disable convert button and enable here
-				console.log(response);
+				setDownloadURI(createApiURI(response.data.fileURL));
 			},
 			onError: (error) => {
 				console.log(error);
@@ -88,23 +91,27 @@ const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 	}
 
 	return (<>
-		<div style={{width: "400px"}}>
-			<Select
-				isMulti
-				options={conversionOptions}
-				isClearable={true}
-				components={animatedComponents}
-				onChange={(selectedOptions) => setSelectedConversionOptions(selectedOptions as ConversionOptions[])}
-			/>
-		</div>
-		<div>
-			<button
-				onClick={handleConvertClick}
-				disabled={selectedConversionOptions.length === 0 || uploadedFile === undefined}
-				className="btn btn-primary mt-3"
-			>
-				Convert
-			</button>
+		<Select
+			className={`${styles.multiselect}`}
+			isMulti
+			options={conversionOptions}
+			isClearable={true}
+			components={animatedComponents}
+			onChange={(selectedOptions) => setSelectedConversionOptions(selectedOptions as ConversionOptions[])}
+		/>
+		<div className={`d-flex align-items-baseline mt-3`}>
+			<div>
+				<button
+					onClick={handleConvertClick}
+					disabled={selectedConversionOptions.length === 0 || uploadedFile === undefined}
+					className="btn btn-primary"
+				>
+					Convert
+				</button>
+			</div>
+			<div className={`ms-4`}>
+				{ downloadURI !== undefined && <a href={downloadURI}>Download</a> }
+			</div>
 		</div>
 	</>)
 }

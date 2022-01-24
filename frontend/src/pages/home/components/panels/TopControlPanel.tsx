@@ -2,6 +2,7 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import Button from "react-bootstrap/Button";
 import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
@@ -66,7 +67,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	return (
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
 		  <Container fluid={true}>
-			  <Nav className="me-auto ms-3">
+			  <Nav className="me-auto ms-3" as="ul">
 				  <Nav.Link onClick={openFileDialog}>
 					  Upload
 				  </Nav.Link>
@@ -88,13 +89,13 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 					  <NavDropdown.Item href="#action/3.1">Statistical outlier removal</NavDropdown.Item>
 					  <NavDropdown.Item href="#action/3.2">Radius outlier removal</NavDropdown.Item>
 				  </NavDropdown>
-				  <Nav.Link
-					  href="#features"
-					  onClick={() => dispatch(showConvertModal())}
-					  disabled={uploadedFile === undefined || currentBackendFileUrl === undefined}
+				  <Nav.Item as="li"
+				            onClick={() => dispatch(showConvertModal())}
 				  >
-					  Convert
-				  </Nav.Link>
+					  <Nav.Link disabled={uploadedFile === undefined || currentBackendFileUrl === undefined}>
+						  Convert
+					  </Nav.Link>
+				  </Nav.Item>
 			  </Nav>
 			  <Nav className="me-3">
 				  <Switch

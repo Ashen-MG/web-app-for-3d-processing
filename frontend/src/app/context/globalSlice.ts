@@ -1,6 +1,5 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import config from "../../config";
-import {createURI} from "../helpers/global";
+import {createApiURI} from "../helpers/global";
 
 export enum Algorithms {
 	NONE,
@@ -43,7 +42,7 @@ export const globalSlice = createSlice({
 			state.originalUploadedFileUrl = action.payload;
 		},
 		setCurrentBackendFileUrl: (state, action: PayloadAction<string>) => {
-			state.currentBackendFileUrl = createURI(action.payload);
+			state.currentBackendFileUrl = createApiURI(action.payload);
 		},
 	}
 });
