@@ -6,8 +6,10 @@ import {Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import {useDispatch} from "react-redux";
-import {hideConvertModal, showConvertModal} from "app/context/globalSlice";
+import {hideConvertModal, setCurrentBackendFileUrl, showConvertModal} from "app/context/globalSlice";
 import {UploadedFileProp} from "app/App";
+import {useMutation} from "react-query";
+import {apiConvert, apiUpload} from "app/adapters";
 
 export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 
@@ -42,12 +44,12 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
   )
 }
 
-const animatedComponents = makeAnimated();
-
-type ConversionOptions = {
+export type ConversionOptions = {
 	value: string,
 	label: string
 }
+
+const animatedComponents = makeAnimated();
 
 // TODO: load labels from config
 const conversionOptions: ConversionOptions[] = [
@@ -62,10 +64,27 @@ const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 
 	const [selectedConversionOptions, setSelectedConversionOptions] = useState<ConversionOptions[]>([]);
 
+	const { mutateAsync: asyncApiConvert } = useMutation(["convert", selectedConversionOptions],
+		() => apiConvert(
+			selectedConversionOptions.map((convertType) => convertType.value)
+		),
+		{
+			onSuccess: (response) => {
+				// TODO: disable convert button and enable here
+				console.log(response);
+			},
+			onError: (error) => {
+				console.log(error);
+			}
+		}
+	);
+
 	const handleConvertClick = () => {
 		if (selectedConversionOptions.length !== 0) {
-			socket.emit("convert");
+			asyncApiConvert();
+			// socket.emit("convert");
 		}
+		// TODO: else snackbar: Pick some conversion types
 	}
 
 	return (<>

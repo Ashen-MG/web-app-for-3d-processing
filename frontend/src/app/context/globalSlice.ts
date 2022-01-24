@@ -1,4 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import config from "../../config";
+import {createURI} from "../helpers/global";
 
 export enum Algorithms {
 	NONE,
@@ -8,13 +10,17 @@ export enum Algorithms {
 export interface GlobalState {
 	fullscreen: boolean,
 	convertModalShown: boolean,
-	selectedAlgorithm: Algorithms
+	selectedAlgorithm: Algorithms,
+	originalUploadedFileUrl: string | undefined,
+	currentBackendFileUrl: string | undefined
 }
 
 const initialState: GlobalState = {
 	fullscreen: false,
 	convertModalShown: false,
-	selectedAlgorithm: Algorithms.NONE
+	selectedAlgorithm: Algorithms.NONE,
+	originalUploadedFileUrl: undefined,
+	currentBackendFileUrl: undefined
 }
 
 export const globalSlice = createSlice({
@@ -33,6 +39,12 @@ export const globalSlice = createSlice({
 		setSelectedAlgorithm: (state, action: PayloadAction<Algorithms>) => {
 			state.selectedAlgorithm = action.payload;
 		},
+		setOriginalUploadedFileUrl: (state, action: PayloadAction<string>) => {
+			state.originalUploadedFileUrl = action.payload;
+		},
+		setCurrentBackendFileUrl: (state, action: PayloadAction<string>) => {
+			state.currentBackendFileUrl = createURI(action.payload);
+		},
 	}
 });
 
@@ -40,7 +52,9 @@ export const {
 	setFullscreen,
 	showConvertModal,
 	hideConvertModal,
-	setSelectedAlgorithm
+	setSelectedAlgorithm,
+	setOriginalUploadedFileUrl,
+	setCurrentBackendFileUrl
 } = globalSlice.actions;
 
 export default globalSlice.reducer;

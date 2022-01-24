@@ -6,7 +6,7 @@ import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
-	Algorithms,
+	Algorithms, setCurrentBackendFileUrl,
 	setFullscreen,
 	setSelectedAlgorithm,
 	showConvertModal
@@ -21,15 +21,17 @@ import {apiUpload} from "../../../../app/adapters";
 
 /** Top control panel = navigation menu.
  *  Options:
- *    - upload to frontend
+ *    - upload to frontend and backend
  *    - pick algorithms
  *    - convert
- *    - handle fullscreen mode.
+ *    - switch fullscreen mode.
  * */
 export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps) => {
 
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
+	const currentBackendFileUrl: string | undefined
+		= useAppSelector((state: RootState) => state.global.currentBackendFileUrl);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
@@ -40,7 +42,8 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		() => apiUpload(uploadedFile!),
 		{
 			onSuccess: (response) => {
-				console.log(response)
+				// Once the file is successfully uploaded to the backend, we're also allowing converting.
+				dispatch(setCurrentBackendFileUrl(response.data.fileURL));
 			},
 			onError: (error) => {
 				console.log(error);
@@ -88,7 +91,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				  <Nav.Link
 					  href="#features"
 					  onClick={() => dispatch(showConvertModal())}
-					  disabled={uploadedFile === undefined}
+					  disabled={uploadedFile === undefined || currentBackendFileUrl === undefined}
 				  >
 					  Convert
 				  </Nav.Link>

@@ -4,8 +4,12 @@ import Form from "react-bootstrap/Form";
 import {useMutation} from "react-query";
 import {apiVoxelDownsampling} from "app/adapters";
 import {useState} from "react";
+import {setCurrentBackendFileUrl} from "app/context/globalSlice";
+import {useDispatch} from "react-redux";
 
 export const VoxelDownsampling = () => {
+
+	const dispatch = useDispatch();
 
 	const [voxelSize, setVoxelSize] = useState<string>("");
 
@@ -13,7 +17,7 @@ export const VoxelDownsampling = () => {
 		() => apiVoxelDownsampling(parseFloat(voxelSize)),
 		{
 			onSuccess: (response) => {
-				console.log(response);
+				dispatch(setCurrentBackendFileUrl(response.data.fileURL));
 			},
 			onError: (error) => {
 				console.log(error);

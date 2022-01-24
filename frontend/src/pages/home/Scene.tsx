@@ -6,48 +6,10 @@ import {Model} from "./components/model/Model";
 import {socket} from "app/http";
 import config from "config";
 import {UploadedFileProp} from "../../app/App";
-
-/*
-To examine:
-https://discourse.threejs.org/t/creating-point-cloud-with-a-points-stream-from-server/5460/2
-*/
-
-interface ScenePLYProps {
-	file?: File
-}
-
-// TODO: handle error if extension is correct but file is broken
-const ScenePLY = ({file}: ScenePLYProps) => {
-
-	const [fileDataURL, setFileDataURL] = useState<string>("");
-
-	useEffect(() => {
-		if (file === undefined)
-			return
-		if (!config.supportedFileTypesForVisualization.includes(file.name.split(".").pop()!)) {
-			alert("Unsupported file type.");
-			return
-		}
-		const reader: FileReader = new FileReader();
-		reader.onload = () => {
-			// console.log(sizeOf({filename: file.name, type: file.type, content: reader.result}) / 1000_000, "MB");
-			// let base64String = reader.result.split(',').pop(); base64 encoding uses [a-z, A-Z, 0-9, +, /]
-			// empirically tested - can only send max to `(reader.result as string).length` <= 999_972.
-			// socket.emit("fileUpload", {filename: file.name, type: file.type, content: reader.result})
-
-			// TODO: send file by chunks
-			setFileDataURL(reader.result as string);
-		}
-		// result will be string (for readAsArrayBuffer it would be ArrayBuffer)
-		reader.readAsDataURL(file as Blob)
-	}, [file])
-
-	return (
-		<>
-			{ fileDataURL.length !== 0 && <Model fileDataURL={fileDataURL}/> }
-		</>
-	)
-}
+import {useFileReader} from "./hooks";
+import {RootState, store} from "../../app/store";
+import {Provider} from "react-redux";
+import {useAppSelector} from "../../app/hooks";
 
 export const Scene = ({uploadedFile}: UploadedFileProp) => {
 
@@ -61,12 +23,26 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 	});
 	 */
 
+	// TODO: rename it - original file data url isn't really url
+	const fileDataURL = useFileReader(uploadedFile);
+
+	const currentBackendFileUrl: string | undefined
+		= useAppSelector((state: RootState) => state.global.currentBackendFileUrl);
+
+	// if we want to use redux story in components that are inside canvas:
+	// https://github.com/pmndrs/react-three-fiber/issues/43
+	// https://spectrum.chat/react-three-fiber/general/redux-state-to-child-component-of-canvas~a0cce2c2-2254-44a2-82c7-952e37e1a1ff
+
 	return (<>
 		<div className={sceneStyles.container}>
 			<Suspense fallback={<div>Loading... </div>}>
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
 				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#000205")}>
-					<ScenePLY file={uploadedFile}/>
+					{
+						fileDataURL.length !== 0 &&
+							<Model fileDataURL={currentBackendFileUrl === undefined ? fileDataURL: currentBackendFileUrl}/>
+					}
+
 					{/*
 					<ambientLight intensity={0.5} />
 					<Environment
