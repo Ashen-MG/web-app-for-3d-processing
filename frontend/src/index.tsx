@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 import {QueryClient, QueryClientProvider} from "react-query";
 
+/** React-query client. */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -27,7 +28,7 @@ ReactDOM.render(
       </Provider>
     </QueryClientProvider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change

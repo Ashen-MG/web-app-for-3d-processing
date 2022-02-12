@@ -2,7 +2,6 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import Button from "react-bootstrap/Button";
 import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
@@ -18,7 +17,7 @@ import config from "config";
 import React, {useEffect, useRef} from "react";
 import {UploadFileProps} from "app/App";
 import {useMutation} from "react-query";
-import {apiUpload} from "../../../../app/adapters";
+import {apiUpload} from "app/adapters";
 
 /** Top control panel = navigation menu.
  *  Options:
@@ -68,16 +67,16 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
 		  <Container fluid={true}>
 			  <Nav className="me-auto ms-3" as="ul">
-				  <Nav.Link onClick={openFileDialog}>
-					  Upload
-				  </Nav.Link>
+				  <Nav.Item as="li">
+					  <Nav.Link onClick={openFileDialog}>Upload</Nav.Link>
+				  </Nav.Item>
 				  <input type="file"
 				         onChange={handleFileUpload}
-				         accept={config.acceptedFileTypes}
+				         accept={config.acceptedFileExtensions}
 				         ref={inputFile}
 				         hidden
 				  />
-				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown">
+				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown" as="li">
 					  {/* TODO: option to see outliers with different color (maybe in sidebar as checkbox) */}
 					  <NavDropdown.Header>Downscale</NavDropdown.Header>
 					  <NavDropdown.Item
@@ -89,15 +88,16 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 					  <NavDropdown.Item href="#action/3.1">Statistical outlier removal</NavDropdown.Item>
 					  <NavDropdown.Item href="#action/3.2">Radius outlier removal</NavDropdown.Item>
 				  </NavDropdown>
-				  <Nav.Item as="li"
-				            onClick={() => dispatch(showConvertModal())}
-				  >
-					  <Nav.Link disabled={uploadedFile === undefined || currentBackendFileUrl === undefined}>
+				  <Nav.Item as="li">
+					  <Nav.Link
+						  onClick={() => dispatch(showConvertModal())}
+						  disabled={uploadedFile === undefined || currentBackendFileUrl === undefined}
+					  >
 						  Convert
 					  </Nav.Link>
 				  </Nav.Item>
 			  </Nav>
-			  <Nav className="me-3">
+			  <Nav className="me-3" as="ul">
 				  <Switch
 					  checked={fullscreenOn}
 					  onChange={(e) =>

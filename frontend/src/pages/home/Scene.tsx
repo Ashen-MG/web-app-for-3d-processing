@@ -1,48 +1,39 @@
-import React, {useEffect, useRef, useState, Suspense} from 'react';
-import {Canvas, useFrame, useLoader} from '@react-three/fiber';
-import {Environment, OrbitControls} from '@react-three/drei';
-import sceneStyles from "pages/home/styles/scene.module.scss";
+import React, {Suspense, useEffect, useState} from "react";
+import {Canvas} from "@react-three/fiber";
+import {OrbitControls} from "@react-three/drei";
 import {Model} from "./components/model/Model";
-import {socket} from "app/http";
-import config from "config";
-import {UploadedFileProp} from "../../app/App";
+import {UploadedFileProp} from "app/App";
 import {useFileReader} from "./hooks";
-import {RootState, store} from "../../app/store";
-import {Provider} from "react-redux";
-import {useAppSelector} from "../../app/hooks";
+import sceneStyles from "pages/home/styles/scene.module.scss";
+import {getFileExtension} from "../../app/helpers/global";
 
+/**
+ * Main 3D scene.
+ * Prepare uploaded point cloud.
+ * TODO: verify extension, Model.tsx must receive correct point cloud i.e. all checks must be here
+ * */
 export const Scene = ({uploadedFile}: UploadedFileProp) => {
 
-	/* socketio example
-	const processingResponse = (file: string) => {}
-	socket.on("processingResponse", processingResponse);
+	const uploadedFileData: string | undefined = useFileReader(uploadedFile);
+	const [fileExtension, setFileExtension] = useState<string>("");
+
 	useEffect(() => {
-		return () => {
-			socket.off("processingResponse", processingResponse);
-		}
-	});
-	 */
+		if (uploadedFile !== undefined)
+			setFileExtension(getFileExtension(uploadedFile!.name));
+	}, [uploadedFile]);
 
-	// TODO: rename it - original file data url isn't really url
-	const fileDataURL = useFileReader(uploadedFile);
-
-	const currentBackendFileUrl: string | undefined
-		= useAppSelector((state: RootState) => state.global.currentBackendFileUrl);
-
-	// if we want to use redux story in components that are inside canvas:
+	// if we want to use redux store in components that are inside react-fiber-three canvas:
 	// https://github.com/pmndrs/react-three-fiber/issues/43
 	// https://spectrum.chat/react-three-fiber/general/redux-state-to-child-component-of-canvas~a0cce2c2-2254-44a2-82c7-952e37e1a1ff
 
 	return (<>
 		<div className={sceneStyles.container}>
-			<Suspense fallback={<div>Loading... </div>}>
+			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
 				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#000205")}>
-					{
-						fileDataURL.length !== 0 &&
-							<Model fileDataURL={currentBackendFileUrl === undefined ? fileDataURL: currentBackendFileUrl}/>
+					{uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) &&
+						<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
 					}
-
 					{/*
 					<ambientLight intensity={0.5} />
 					<Environment

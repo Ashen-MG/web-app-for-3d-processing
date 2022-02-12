@@ -10,7 +10,7 @@ export interface GlobalState {
 	fullscreen: boolean,
 	convertModalShown: boolean,
 	selectedAlgorithm: Algorithms,
-	originalUploadedFileUrl: string | undefined,
+	originalBackendFileUrl: string | undefined,
 	currentBackendFileUrl: string | undefined
 }
 
@@ -18,7 +18,7 @@ const initialState: GlobalState = {
 	fullscreen: false,
 	convertModalShown: false,
 	selectedAlgorithm: Algorithms.NONE,
-	originalUploadedFileUrl: undefined,
+	originalBackendFileUrl: undefined,
 	currentBackendFileUrl: undefined
 }
 
@@ -38,8 +38,8 @@ export const globalSlice = createSlice({
 		setSelectedAlgorithm: (state, action: PayloadAction<Algorithms>) => {
 			state.selectedAlgorithm = action.payload;
 		},
-		setOriginalUploadedFileUrl: (state, action: PayloadAction<string>) => {
-			state.originalUploadedFileUrl = action.payload;
+		setOriginalBackendFileUrl: (state, action: PayloadAction<string>) => {
+			state.originalBackendFileUrl = action.payload;
 		},
 		setCurrentBackendFileUrl: (state, action: PayloadAction<string>) => {
 			state.currentBackendFileUrl = createApiURI(action.payload);
@@ -52,7 +52,7 @@ export const {
 	showConvertModal,
 	hideConvertModal,
 	setSelectedAlgorithm,
-	setOriginalUploadedFileUrl,
+	setOriginalBackendFileUrl,
 	setCurrentBackendFileUrl
 } = globalSlice.actions;
 
