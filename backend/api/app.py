@@ -6,10 +6,15 @@ from typing import Dict
 from shutil import copyfile
 import random
 
-from flask import Flask, send_file, request, url_for
+from flask import Flask, send_file, request, url_for, redirect
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
+#from flask_jwt_extended import create_access_token
+#from flask_jwt_extended import JWTManager
+from datetime import timedelta
+
+from convert import createConversions
 from algorithms.analytical.voxel_downsampling import voxelDownsampling
 
 """
@@ -26,7 +31,17 @@ CORS(app, resources={ r'/*': {'origins': [
 app.config['CORS_HEADERS'] = 'Content-Type'
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 
+""" JWT tokens setup. """
+"""
+app.config["JWT_SECRET_KEY"] = "dev secret key"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=72)
+jwt = JWTManager(app)
+"""
+
 FileType = Dict[str, str]
+
+def getAccessToken():  # TODO
+  ...
 
 def getFileData(file: FileType):
   pointCloudData = re.sub('^data:application/octet-stream;base64,', '', file["content"])
@@ -64,6 +79,15 @@ def download():
                    download_name="converted.zip",
                    as_attachment=True
    )
+
+@app.route("/api/convert", methods=["POST"])
+def convert():
+  convertTypes = request.json["convertTypes"]
+  filepath = os.path.join(app.root_path, "static/uploads/current.ply")  # todo
+  createConversions(filepath, os.path.join(app.root_path, "static/export"), convertTypes)
+  return {
+    "fileURL": url_for("static", filename="export/converted.zip")
+  }
 
 @app.route("/api/upload", methods=["POST"])
 def upload():
