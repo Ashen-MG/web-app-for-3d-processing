@@ -6,6 +6,7 @@ from typing import Dict
 from shutil import copyfile
 import random
 import endpoints.upload
+import endpoints.algorithms.voxel_downsampling
 
 from flask import Flask, send_file, request, url_for, redirect
 from flask_cors import CORS
@@ -16,7 +17,6 @@ from flask_cors import CORS
 from datetime import timedelta
 
 from convert import createConversions
-from algorithms.analytical.voxel_downsampling import voxelDownsampling
 
 """
 Payload.max_decode_packets = 50000
@@ -102,21 +102,13 @@ app.add_url_rule(
 	methods=["POST"]
 )
 
-# TODO?: each algorithm could take parameters: version, token (dirname)
+app.add_url_rule(
+	"/api/algorithms/voxel-downsampling",
+	view_func=endpoints.algorithms.voxel_downsampling.VoxelDownsamplingView.as_view("voxel_downsampling"),
+	methods=["PUT"]
+)
 
-# TODO: different extension
-@app.route("/api/algorithms/voxel-downsampling", methods=["POST"])
-def voxel_downsampling():
-  # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
-  voxelSize = request.json["voxelSize"]
-  filepath = os.path.join(app.root_path, "static/uploads/current.ply")
-  voxelDownsampling(filepath, filepath, voxelSize)
-
-  return {
-    "fileURL": url_for("static", filename="uploads/current.ply") + f"?v={''.join([str(random.randint(0, 100)) for _ in range(30)])}"
-  }
-  # return send_file(filename)
-
+# useful links
 # https://stackoverflow.com/questions/46805813/set-the-http-status-text-in-a-flask-response
 
 if __name__ == '__main__':

@@ -1,7 +1,6 @@
 from flask import request, url_for
-from flask import current_app
+from flask import current_app as app
 from flasgger import SwaggerView
-from config import UPLOADS_FOLDER
 from files import File
 
 class UploadView(SwaggerView):
@@ -11,13 +10,19 @@ class UploadView(SwaggerView):
 		if "file" not in request.files:  # TODO
 			...
 
-		file = File(current_app.root_path, request.files["file"])
+		file = File(app.root_path, request.files["file"])
 
 		if not file.isExtensionAllowed():  # TODO
 			...
 
-		fileName = file.save()
+		randomDirName: str = file.getRandomString()
+		fileName, fileExtension = file.save(randomDirName, version=1)
 
 		return {
-			"fileURL": url_for("static", filename=f"{UPLOADS_FOLDER}/{fileName}")
+			"file": {
+				"url": url_for("static", filename=f"{app.config['UPLOADS_FOLDER']}/{randomDirName}/{fileName}"),
+				"extension": fileExtension
+			},
+			"token": randomDirName,
+			"version": 1,
 		}

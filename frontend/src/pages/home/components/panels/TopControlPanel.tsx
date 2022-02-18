@@ -6,7 +6,9 @@ import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
-	Algorithms, setCurrentBackendFileUrl,
+	Algorithms,
+	NewVersionState,
+	setBackendState,
 	setFullscreen,
 	setSelectedAlgorithm,
 	showConvertModal
@@ -14,10 +16,11 @@ import {
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import config from "config";
-import React, {useEffect, useRef} from "react";
+import React, {useRef} from "react";
 import {UploadFileProps} from "app/App";
 import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
+import createSnackbar, {SnackTypes} from "components/Snackbar";
 
 /** Top control panel = navigation menu.
  *  Options:
@@ -30,33 +33,19 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
-	const currentBackendFileUrl: string | undefined
-		= useAppSelector((state: RootState) => state.global.currentBackendFileUrl);
+	const backendState: NewVersionState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
 	const openFileDialog = () => inputFile.current?.click();
 
-	// expected to call it only after a file has been uploaded
-	const { mutateAsync: asyncApiUpload } = useMutation(["upload", uploadedFile],
-		() => apiUpload(uploadedFile!),
-		{
-			onSuccess: (response) => {
-				// Once the file is successfully uploaded to the backend, we're also allowing converting.
-				dispatch(setCurrentBackendFileUrl(response.data.fileURL));
-			},
-			onError: (error) => {
-				console.log(error);
-			}
-		}
-	);
-
 	const uploadMutation = useMutation(apiUpload, {
 		onSuccess: (response) => {
-			dispatch(setCurrentBackendFileUrl(response.data.fileURL));
+			dispatch(setBackendState(response.data));
 		},
-		onError: (error: any) => {
-			console.log(error);
+		onError: (error) => {
+			console.error(error);
+			createSnackbar("Uploading to server wasn't successful.", SnackTypes.error);
 		},
 	});
 
@@ -68,13 +57,6 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 			uploadMutation.mutate(file);
 		}
 	}
-
-	/*
-	useEffect(() => {
-		if (uploadedFile !== undefined)
-			asyncApiUpload();
-	}, [uploadedFile]);
-	 */
 
 	return (
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
@@ -104,7 +86,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				  <Nav.Item as="li">
 					  <Nav.Link
 						  onClick={() => dispatch(showConvertModal())}
-						  disabled={uploadedFile === undefined || currentBackendFileUrl === undefined}
+						  disabled={uploadedFile === undefined || backendState === undefined}
 					  >
 						  Convert
 					  </Nav.Link>

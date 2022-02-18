@@ -6,6 +6,8 @@ import {UploadedFileProp} from "app/App";
 import {useFileReader} from "./hooks";
 import sceneStyles from "pages/home/styles/scene.module.scss";
 import {getFileExtension} from "../../app/helpers/global";
+import {Provider} from "react-redux";
+import {store} from "app/store";
 
 /**
  * Main 3D scene.
@@ -31,18 +33,20 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
 				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#000205")}>
-					{uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) &&
-						<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
-					}
-					{/*
-					<ambientLight intensity={0.5} />
-					<Environment
-						background={false}
-						preset={"lobby"}/>
-					*/}
+					<Provider store={store}>
+						{uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) &&
+							<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
+						}
+						{/*
+						<ambientLight intensity={0.5} />
+						<Environment
+							background={false}
+							preset={"lobby"}/>
+						*/}
 
-					{/* camera movement control with a mouse */}
-					<OrbitControls />
+						{/* camera movement control with a mouse */}
+						<OrbitControls />
+					</Provider>
 				</Canvas>
 			</Suspense>
 		</div>

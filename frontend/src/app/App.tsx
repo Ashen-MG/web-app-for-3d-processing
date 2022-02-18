@@ -8,6 +8,7 @@ import {useAppSelector} from "./hooks";
 import {useDispatch} from "react-redux";
 import React, {useEffect, useState} from "react";
 import {setFullscreen} from "./context/globalSlice";
+import {ToastContainer} from "react-toastify";
 
 export type UploadFile = File | undefined
 
@@ -47,6 +48,7 @@ export const App = () => {
         <SidebarControlPanel />
       </div>
       <ConvertModal uploadedFile={uploadedFile} />
+      <ToastContainer limit={5} />
     </FullScreen>
   );
 }

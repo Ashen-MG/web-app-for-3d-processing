@@ -4,26 +4,35 @@ import Form from "react-bootstrap/Form";
 import {useMutation} from "react-query";
 import {apiVoxelDownsampling} from "app/adapters";
 import {useState} from "react";
-import {setCurrentBackendFileUrl} from "app/context/globalSlice";
+import {NewVersionState, setBackendState} from "app/context/globalSlice";
 import {useDispatch} from "react-redux";
+import {useAppSelector} from "app/hooks";
+import {RootState} from "app/store";
 
 export const VoxelDownsampling = () => {
 
 	const dispatch = useDispatch();
-
+	const backendState: NewVersionState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+	
 	const [voxelSize, setVoxelSize] = useState<string>("");
 
-	const { mutateAsync: asyncApiCall } = useMutation(["algorithm_voxel_downsampling", voxelSize],
-		() => apiVoxelDownsampling(parseFloat(voxelSize)),
-		{
-			onSuccess: (response) => {
-				dispatch(setCurrentBackendFileUrl(response.data.fileURL));
-			},
-			onError: (error) => {
-				console.log(error);
-			}
+	const mutation = useMutation(apiVoxelDownsampling, {
+		onSuccess: (response) => {
+			dispatch(setBackendState(response.data));
+		},
+		onError: (error) => {
+			console.error(error);
 		}
-	);
+	});
+
+	const applyAlgorithm = () => {
+		mutation.mutate({
+			token: backendState!.token,
+			version: backendState!.version,
+			fileExtension: backendState!.file.extension,
+			voxelSize: parseFloat(voxelSize)
+		});
+	}
 
 	return (<>
 		<header>
@@ -47,7 +56,7 @@ export const VoxelDownsampling = () => {
 		</FloatingLabel>
 		<button
 			className="btn btn-info"
-			onClick={() => asyncApiCall()}
+			onClick={applyAlgorithm}
 		>
 			Run
 		</button>

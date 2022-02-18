@@ -6,6 +6,8 @@ import {XYZLoader} from "three/examples/jsm/loaders/XYZLoader";  // supports xyz
 import {PCDLoader} from "three/examples/jsm/loaders/PCDLoader";
 import {RootState} from "app/store";
 import {useAppSelector} from "app/hooks";
+import {NewVersionState} from "../../../../app/context/globalSlice";
+import {createApiURI} from "../../../../app/helpers/global";
 
 const loaders = {ply: PLYLoader, xyz: XYZLoader, xyzrgb: XYZLoader, pcd: PCDLoader}
 
@@ -22,10 +24,22 @@ interface FileExtension {
  * @param fileData Raw data from the point cloud file.
  */
 export const Model = ({fileData, fileExtension}: FileData & FileExtension) => {
-	if (fileExtension === "ply")        return <ModelPLY fileData={fileData} />
-	else if (fileExtension === "xyz" || fileExtension === "xyzrgb")   return <ModelXYZ fileData={fileData} />
-	else if (fileExtension === "pcd")   return <ModelPCD fileData={fileData} />
-	return                              <>TODO: error - invalid file extension</>
+
+	const backendState: NewVersionState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+
+	const [_fileData, setFileData] = useState<string>(fileData);
+	const [_fileExtension, setFileExtension] = useState<string>(fileExtension);
+
+	useEffect(() => {
+		if (backendState === undefined || backendState.version <= 1) return;
+		setFileData(createApiURI(backendState.file.url));
+		setFileExtension(backendState.file.extension);
+	}, [backendState]);
+
+	if (_fileExtension === "ply")        return <ModelPLY fileData={_fileData} />
+	else if (_fileExtension === "xyz" || _fileExtension === "xyzrgb")   return <ModelXYZ fileData={_fileData} />
+	else if (_fileExtension === "pcd")   return <ModelPCD fileData={_fileData} />
+	return                              <>TODO: error - invalid file extension, error should be handled sooner</>
 }
 
 const ModelPLY = ({fileData}: FileData) => {

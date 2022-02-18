@@ -1,5 +1,2 @@
 .idea
 __pycache__
-bc3dts/src/static/*
-!bc3dts/src/static/.keep
-backend/venv

@@ -6,7 +6,7 @@ import {Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import {useDispatch} from "react-redux";
-import {hideConvertModal, setCurrentBackendFileUrl, showConvertModal} from "app/context/globalSlice";
+import {hideConvertModal} from "app/context/globalSlice";
 import {UploadedFileProp} from "app/App";
 import {useMutation} from "react-query";
 import {apiConvert, apiUpload} from "app/adapters";

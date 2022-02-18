@@ -1,4 +1,4 @@
-from os.path import join as pathJoin
+from os.path import join as joinPath
 from os import mkdir
 from random import choices as randomChoices
 from string import ascii_lowercase as letters
@@ -15,18 +15,17 @@ class File:
 		fileName = self.uploadedFile.filename
 		return "." in fileName and fileName.split(".")[-1].lower() in ALLOWED_EXTENSIONS
 
-	def save(self, version=1) -> str:
+	def save(self, dirName: str, version: int) -> (str, str):
 		""" :returns saved file name """
 		fileExtension = self.uploadedFile.filename.split(".")[-1].lower()
-		randomDirName = self._getRandomString()
-		absoluteDirPath: str = self._getAbsoluteSavingPath(randomDirName)
+		absoluteDirPath: str = self._getAbsoluteSavingPath(dirName)
 		mkdir(absoluteDirPath)
 		fileName = f"v{version}.{fileExtension}"
-		self.uploadedFile.save(pathJoin(absoluteDirPath, fileName))
-		return fileName
+		self.uploadedFile.save(joinPath(absoluteDirPath, fileName))
+		return fileName, fileExtension
 
 	def _getAbsoluteSavingPath(self, dirName: str):
-		return pathJoin(self.appRootPath, SAVING_FOLDER, dirName)
+		return joinPath(self.appRootPath, SAVING_FOLDER, dirName)
 
-	def _getRandomString(self) -> str:
+	def getRandomString(self) -> str:
 		return ''.join(randomChoices(letters + digits, k=16))

@@ -1,25 +1,31 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {createApiURI} from "../helpers/global";
 
 export enum Algorithms {
 	NONE,
 	VOXEL_DOWNSAMPLING
 }
 
+export interface NewVersionState {
+	file: {
+		url: string,
+		extension: string
+	}
+	token: string,
+	version: number
+}
+
 export interface GlobalState {
 	fullscreen: boolean,
 	convertModalShown: boolean,
 	selectedAlgorithm: Algorithms,
-	originalBackendFileUrl: string | undefined,
-	currentBackendFileUrl: string | undefined
+	backendState: NewVersionState | undefined
 }
 
 const initialState: GlobalState = {
 	fullscreen: false,
 	convertModalShown: false,
 	selectedAlgorithm: Algorithms.NONE,
-	originalBackendFileUrl: undefined,
-	currentBackendFileUrl: undefined
+	backendState: undefined
 }
 
 export const globalSlice = createSlice({
@@ -38,11 +44,8 @@ export const globalSlice = createSlice({
 		setSelectedAlgorithm: (state, action: PayloadAction<Algorithms>) => {
 			state.selectedAlgorithm = action.payload;
 		},
-		setOriginalBackendFileUrl: (state, action: PayloadAction<string>) => {
-			state.originalBackendFileUrl = action.payload;
-		},
-		setCurrentBackendFileUrl: (state, action: PayloadAction<string>) => {
-			state.currentBackendFileUrl = createApiURI(action.payload);
+		setBackendState: (state, action: PayloadAction<NewVersionState>) => {
+			state.backendState = action.payload;  // createApiURI(action.payload);
 		},
 	}
 });
@@ -52,8 +55,7 @@ export const {
 	showConvertModal,
 	hideConvertModal,
 	setSelectedAlgorithm,
-	setOriginalBackendFileUrl,
-	setCurrentBackendFileUrl
+	setBackendState,
 } = globalSlice.actions;
 
 export default globalSlice.reducer;
