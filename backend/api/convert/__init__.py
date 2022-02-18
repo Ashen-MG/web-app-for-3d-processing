@@ -1,12 +1,12 @@
 import open3d as o3d
 import zipfile
-from config import supportedExtensions
+from config import ALLOWED_EXTENSIONS
 
 def createConversions(filename: str, outputFilepath: str, convertTypes: list):
 	pcd = o3d.io.read_point_cloud(filename)
 	convertedFiles = []  # absolute paths to converted files
 	for extension in convertTypes:
-		if extension in supportedExtensions:
+		if extension in ALLOWED_EXTENSIONS:
 			outputFilename = f"{outputFilepath}/converted.{extension}"
 			o3d.io.write_point_cloud(outputFilename, pcd)
 			convertedFiles.append(outputFilename)

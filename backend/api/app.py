@@ -5,10 +5,11 @@ import zipfile
 from typing import Dict
 from shutil import copyfile
 import random
+import endpoints.upload
 
 from flask import Flask, send_file, request, url_for, redirect
 from flask_cors import CORS
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO
 
 #from flask_jwt_extended import create_access_token
 #from flask_jwt_extended import JWTManager
@@ -16,8 +17,6 @@ from datetime import timedelta
 
 from convert import createConversions
 from algorithms.analytical.voxel_downsampling import voxelDownsampling
-
-from files import File
 
 """
 Payload.max_decode_packets = 50000
@@ -30,8 +29,12 @@ CORS(app, resources={ r'/*': {'origins': [
     'http://localhost:3000', '*'  # React
       # React
   ]}}, supports_credentials=True)
+
+# Load config
+app.config.from_pyfile("config.py")
+
 app.config['CORS_HEADERS'] = 'Content-Type'
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+# socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 
 """ JWT tokens setup. """
 """
@@ -49,6 +52,7 @@ def getFileData(file: FileType):
   pointCloudData = re.sub('^data:application/octet-stream;base64,', '', file["content"])
   return base64.b64decode(pointCloudData)
 
+"""
 @socketio.on("fileUpload")
 def handle_json(file: FileType):
   fileContent = getFileData(file)
@@ -68,6 +72,7 @@ def convert():
     download_name="converted.zip",
     as_attachment=True
   )
+"""
 
 @app.route("/download")
 def download():
@@ -91,23 +96,13 @@ def convert():
     "fileURL": url_for("static", filename="export/converted.zip")
   }
 
-@app.route("/api/upload", methods=["POST"])
-def upload():
-  # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
+app.add_url_rule(
+	"/api/upload",
+	view_func=endpoints.upload.UploadView.as_view("upload"),
+	methods=["POST"]
+)
 
-  if "file" not in request.files: # TODO
-    ...
-
-  file = File(app.root_path, request.files["file"])
-
-  if not file.isExtensionAllowed(): # TODO
-    ...
-
-  fileName = file.save()
-
-  return {
-    "fileURL": url_for("static", filename=f"uploads/{fileName}")
-  }
+# TODO?: each algorithm could take parameters: version, token (dirname)
 
 # TODO: different extension
 @app.route("/api/algorithms/voxel-downsampling", methods=["POST"])

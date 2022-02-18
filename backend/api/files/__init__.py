@@ -4,18 +4,16 @@ from random import choices as randomChoices
 from string import ascii_lowercase as letters
 from string import digits
 from werkzeug.datastructures import FileStorage
+from config import ALLOWED_EXTENSIONS, SAVING_FOLDER
 
 class File:
-	SAVING_FOLDER = r"static\uploads"
-	ALLOWED_EXTENSIONS = {"ply", "pcd", "xyz", "xyzrgb"}
-
 	def __init__(self, appRootPath: str, file: FileStorage):
 		self.appRootPath = appRootPath
 		self.uploadedFile = file
 
 	def isExtensionAllowed(self):
 		fileName = self.uploadedFile.filename
-		return "." in fileName and fileName.split(".")[-1].lower() in self.ALLOWED_EXTENSIONS
+		return "." in fileName and fileName.split(".")[-1].lower() in ALLOWED_EXTENSIONS
 
 	def save(self, version=1) -> str:
 		""" :returns saved file name """
@@ -28,7 +26,7 @@ class File:
 		return fileName
 
 	def _getAbsoluteSavingPath(self, dirName: str):
-		return pathJoin(self.appRootPath, self.SAVING_FOLDER, dirName)
+		return pathJoin(self.appRootPath, SAVING_FOLDER, dirName)
 
 	def _getRandomString(self) -> str:
 		return ''.join(randomChoices(letters + digits, k=16))
