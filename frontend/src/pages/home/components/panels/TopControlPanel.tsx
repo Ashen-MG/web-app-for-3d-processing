@@ -51,17 +51,30 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		}
 	);
 
+	const uploadMutation = useMutation(apiUpload, {
+		onSuccess: (response) => {
+			dispatch(setCurrentBackendFileUrl(response.data.fileURL));
+		},
+		onError: (error: any) => {
+			console.log(error);
+		},
+	});
+
 	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		// file will be undefined if user close the file dialog without picking some file
 		const file: File | undefined = e.target.files?.[0];
-		if (file !== undefined)
+		if (file !== undefined) {
 			setUploadedFile(file);
+			uploadMutation.mutate(file);
+		}
 	}
 
+	/*
 	useEffect(() => {
 		if (uploadedFile !== undefined)
 			asyncApiUpload();
 	}, [uploadedFile]);
+	 */
 
 	return (
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>

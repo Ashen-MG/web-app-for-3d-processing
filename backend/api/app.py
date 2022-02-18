@@ -17,6 +17,8 @@ from datetime import timedelta
 from convert import createConversions
 from algorithms.analytical.voxel_downsampling import voxelDownsampling
 
+from files import File
+
 """
 Payload.max_decode_packets = 50000
 SocketIO(async_mode="gevent", ping_timeout=100000, pong_timeout=100000)
@@ -91,22 +93,20 @@ def convert():
 
 @app.route("/api/upload", methods=["POST"])
 def upload():
-  # TODO: validation
   # https://flask.palletsprojects.com/en/2.0.x/patterns/fileuploads/
-  file = request.files["file"]
 
-  # we'll see if there will be any use for storing the original file
-  originalStaticFilepath = f"uploads/original.{file.filename.split('.')[-1]}"
-  originalFilepath = os.path.join(app.root_path, "static", originalStaticFilepath)
+  if "file" not in request.files: # TODO
+    ...
 
-  # file to which new processing updates are going to be saved
-  currentFilepath = f"uploads/current.{file.filename.split('.')[-1]}"
+  file = File(app.root_path, request.files["file"])
 
-  file.save(os.path.join(app.root_path, "static", originalFilepath))
-  copyfile(originalFilepath, os.path.join(app.root_path, "static", currentFilepath))  # https://stackoverflow.com/questions/123198/how-to-copy-files
+  if not file.isExtensionAllowed(): # TODO
+    ...
+
+  fileName = file.save()
 
   return {
-    "fileURL": url_for("static", filename=currentFilepath) + "?v=1"
+    "fileURL": url_for("static", filename=f"uploads/{fileName}")
   }
 
 # TODO: different extension
