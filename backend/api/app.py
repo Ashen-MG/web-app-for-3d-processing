@@ -7,6 +7,8 @@ from shutil import copyfile
 import random
 import endpoints.upload
 import endpoints.algorithms.voxel_downsampling
+import endpoints.algorithms.remove_outliers.statistical
+import endpoints.algorithms.remove_outliers.radius
 
 from flask import Flask, send_file, request, url_for, redirect
 from flask_cors import CORS
@@ -105,6 +107,18 @@ app.add_url_rule(
 app.add_url_rule(
 	"/api/algorithms/voxel-downsampling",
 	view_func=endpoints.algorithms.voxel_downsampling.VoxelDownsamplingView.as_view("voxel_downsampling"),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/statistical-outlier-removal",
+	view_func=endpoints.algorithms.remove_outliers.statistical.StatisticalOutlierRemovalView.as_view("statistical_outlier_removal"),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/radius-outlier-removal",
+	view_func=endpoints.algorithms.remove_outliers.radius.RadiusOutlierRemovalView.as_view("radius_outlier_removal"),
 	methods=["PUT"]
 )
 

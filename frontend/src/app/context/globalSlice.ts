@@ -2,10 +2,12 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export enum Algorithms {
 	NONE,
-	VOXEL_DOWNSAMPLING
+	VOXEL_DOWNSAMPLING,
+	STATISTICAL_OUTLIER_REMOVAL,
+	RADIUS_OUTLIER_REMOVAL
 }
 
-export interface NewVersionState {
+export interface FileState {
 	file: {
 		url: string,
 		extension: string
@@ -18,7 +20,7 @@ export interface GlobalState {
 	fullscreen: boolean,
 	convertModalShown: boolean,
 	selectedAlgorithm: Algorithms,
-	backendState: NewVersionState | undefined
+	backendState: FileState | undefined
 }
 
 const initialState: GlobalState = {
@@ -44,8 +46,8 @@ export const globalSlice = createSlice({
 		setSelectedAlgorithm: (state, action: PayloadAction<Algorithms>) => {
 			state.selectedAlgorithm = action.payload;
 		},
-		setBackendState: (state, action: PayloadAction<NewVersionState>) => {
-			state.backendState = action.payload;  // createApiURI(action.payload);
+		setBackendState: (state, action: PayloadAction<FileState>) => {
+			state.backendState = action.payload;
 		},
 	}
 });

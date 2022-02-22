@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import {useMutation} from "react-query";
 import {apiVoxelDownsampling} from "app/adapters";
 import {useState} from "react";
-import {NewVersionState, setBackendState} from "app/context/globalSlice";
+import {FileState, setBackendState} from "app/context/globalSlice";
 import {useDispatch} from "react-redux";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
@@ -12,8 +12,8 @@ import {RootState} from "app/store";
 export const VoxelDownsampling = () => {
 
 	const dispatch = useDispatch();
-	const backendState: NewVersionState | undefined = useAppSelector((state: RootState) => state.global.backendState);
-	
+	const backendState: FileState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+
 	const [voxelSize, setVoxelSize] = useState<string>("");
 
 	const mutation = useMutation(apiVoxelDownsampling, {

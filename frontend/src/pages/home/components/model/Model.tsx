@@ -6,8 +6,8 @@ import {XYZLoader} from "three/examples/jsm/loaders/XYZLoader";  // supports xyz
 import {PCDLoader} from "three/examples/jsm/loaders/PCDLoader";
 import {RootState} from "app/store";
 import {useAppSelector} from "app/hooks";
-import {NewVersionState} from "../../../../app/context/globalSlice";
-import {createApiURI} from "../../../../app/helpers/global";
+import {FileState} from "app/context/globalSlice";
+import {createApiURI} from "app/helpers/global";
 
 const loaders = {ply: PLYLoader, xyz: XYZLoader, xyzrgb: XYZLoader, pcd: PCDLoader}
 
@@ -25,7 +25,7 @@ interface FileExtension {
  */
 export const Model = ({fileData, fileExtension}: FileData & FileExtension) => {
 
-	const backendState: NewVersionState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+	const backendState: FileState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 
 	const [_fileData, setFileData] = useState<string>(fileData);
 	const [_fileExtension, setFileExtension] = useState<string>(fileExtension);
