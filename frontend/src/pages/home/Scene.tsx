@@ -1,6 +1,6 @@
 import React, {Suspense, useEffect, useState} from "react";
 import {Canvas} from "@react-three/fiber";
-import {OrbitControls} from "@react-three/drei";
+import {OrbitControls, Environment} from "@react-three/drei";
 import {Model} from "./components/model/Model";
 import {UploadedFileProp} from "app/App";
 import {useFileReader} from "./hooks";
@@ -32,7 +32,7 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 		<div className={sceneStyles.container}>
 			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
-				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#000205")}>
+				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#0a0a0a")}>
 					<Provider store={store}>
 						{uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) &&
 							<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
@@ -43,9 +43,7 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 							background={false}
 							preset={"lobby"}/>
 						*/}
-
 						{/* camera movement control with a mouse */}
-						<OrbitControls />
 					</Provider>
 				</Canvas>
 			</Suspense>

@@ -1,6 +1,14 @@
 import React, {useEffect, useState} from "react";
-import {BufferGeometry, Material, MeshStandardMaterial, Points, PointsMaterial, Vector3} from "three";
-import {useLoader} from "@react-three/fiber";
+import {
+	BufferGeometry,
+	Material,
+	MeshBasicMaterial, MeshMatcapMaterial, MeshPhongMaterial, MeshPhysicalMaterial,
+	MeshStandardMaterial,
+	Points,
+	PointsMaterial,
+	Vector3
+} from "three";
+import {useLoader, useThree} from "@react-three/fiber";
 import {PLYLoader} from "three/examples/jsm/loaders/PLYLoader";
 import {XYZLoader} from "three/examples/jsm/loaders/XYZLoader";  // supports xyz and xyzrgb
 import {PCDLoader} from "three/examples/jsm/loaders/PCDLoader";
@@ -8,6 +16,8 @@ import {RootState} from "app/store";
 import {useAppSelector} from "app/hooks";
 import {FileState} from "app/context/globalSlice";
 import {createApiURI} from "app/helpers/global";
+import * as THREE from "three";
+import {OrbitControls, PerspectiveCamera, useMatcapTexture} from "@react-three/drei";
 
 const loaders = {ply: PLYLoader, xyz: XYZLoader, xyzrgb: XYZLoader, pcd: PCDLoader}
 
@@ -67,7 +77,6 @@ interface GeometryProps {
 }
 
 const Geometry = ({geometry, material}: GeometryProps) => {
-	// const meshMaterial = new MeshStandardMaterial({color: "white"});
 
 	//const currentBackendFileUrl: string | undefined
 	//= useAppSelector((state: RootState) => state.global.currentBackendFileUrl);
@@ -87,6 +96,8 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 	}, [geometry])
 	 */
 
+	const [vector, setVector] = useState<Vector3>(new Vector3(0, 0, 0));
+
 	useEffect(() => {
 		const vectors: Vector3[] = [];
 		for (let i = 0; i * 3 < geometry.attributes.position.array.length; i++) {
@@ -95,6 +106,16 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 				vectors.push(vector);
 			}
 		}
+
+		// avg
+		setVector(
+			vectors
+				.reduce((prev, curr): Vector3 => curr.add(prev))
+				.divide(new Vector3(vectors.length, vectors.length, vectors.length))
+		);
+
+		geometry.computeVertexNormals();  // TODO
+
 		const g: BufferGeometry = new BufferGeometry();
 		g.setFromPoints(vectors);
 		setCleanGeometry(g);
@@ -115,9 +136,44 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 	}, [geometryPCD]);
 	 */
 
-	return (
+	// https://threejs.org/docs/#api/en/materials/MeshBasicMaterial
+	const meshMaterial = new MeshBasicMaterial({
+		color: "orange",
+		wireframe: true,
+		reflectivity: 1,
+		envMap: null
+	});
+
+	const [matcap, url] = useMatcapTexture(
+		67, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
+		1024 // size of the texture ( 64, 128, 256, 512, 1024 )
+	)
+
+	// https://docs.pmnd.rs/drei/staging/use-matcap-texture
+	// TODO: possible to test: https://docs.pmnd.rs/drei/staging/use-normal-texture
+	const meshMatcam = new MeshMatcapMaterial({
+		matcap: matcap
+	});
+
+	const meshPhongMaterail = new MeshPhongMaterial({
+		color: "white",
+		polygonOffset: true,
+		polygonOffsetFactor: 1, // positive value pushes polygon further away
+		polygonOffsetUnits: 1
+	});
+
+	const { camera, gl } = useThree();
+
+	return (<>
 		<group dispose={null}>
-			<points geometry={cleanGeometry} material={material}/>
+			<mesh geometry={geometry} material={meshMatcam} castShadow receiveShadow onClick={() => {
+				// just testing
+				// camera.zoom += .5;
+				// camera.updateProjectionMatrix();
+			}} />
+			{/* <points geometry={cleanGeometry} material={material}/> */}
 		</group>
+		<OrbitControls target={vector} />
+	</>
 	)
 }
