@@ -1,13 +1,17 @@
 import Select from "react-select";
 import React, {useState} from "react";
 import makeAnimated from "react-select/animated";
-import {socket} from "app/http";
-import {Modal} from "react-bootstrap";
+import {Form, Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import {useDispatch} from "react-redux";
-import {hideConvertModal, showConvertModal} from "app/context/globalSlice";
+import {hideConvertModal} from "app/context/globalSlice";
 import {UploadedFileProp} from "app/App";
+import {useMutation} from "react-query";
+import {apiConvert} from "app/adapters";
+import {createApiURI} from "app/helpers/global";
+import styles from "./styles/convert_modal.module.scss";
+import config from "../../../../config";
 
 export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 
@@ -42,12 +46,12 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
   )
 }
 
-const animatedComponents = makeAnimated();
-
-type ConversionOptions = {
+export interface ConversionOptions {
 	value: string,
 	label: string
 }
+
+const animatedComponents = makeAnimated();
 
 // TODO: load labels from config
 const conversionOptions: ConversionOptions[] = [
@@ -61,31 +65,59 @@ const conversionOptions: ConversionOptions[] = [
 const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 
 	const [selectedConversionOptions, setSelectedConversionOptions] = useState<ConversionOptions[]>([]);
+	const [downloadURI, setDownloadURI] = useState<string | undefined>();
+
+	const { mutateAsync: asyncApiConvert } = useMutation(["convert", selectedConversionOptions],
+		() => apiConvert(
+			selectedConversionOptions.map((convertType) => convertType.value)
+		),
+		{
+			onSuccess: (response) => {
+				// TODO: disable convert button and enable here
+				setDownloadURI(createApiURI(response.data.fileURL));
+			},
+			onError: (error) => {
+				console.log(error);
+			}
+		}
+	);
 
 	const handleConvertClick = () => {
 		if (selectedConversionOptions.length !== 0) {
-			socket.emit("convert");
+			asyncApiConvert();
+			// socket.emit("convert");
 		}
+		// TODO: else snackbar: Pick some conversion types
 	}
 
 	return (<>
-		<div style={{width: "400px"}}>
-			<Select
-				isMulti
-				options={conversionOptions}
-				isClearable={true}
-				components={animatedComponents}
-				onChange={(selectedOptions) => setSelectedConversionOptions(selectedOptions as ConversionOptions[])}
-			/>
+		<input type="file"
+		       accept={config.acceptedFileExtensions}
+		/>
+		<div key="convert-uploaded">  {/* TODO: disable if there's no uploaded file */}
+			<Form.Check type="checkbox" id="convert-uploaded" label="convert uploaded" />
 		</div>
-		<div>
-			<button
-				onClick={handleConvertClick}
-				disabled={selectedConversionOptions.length === 0 || uploadedFile === undefined}
-				className="btn btn-primary mt-3"
-			>
-				Convert
-			</button>
+		<Select
+			className={`${styles.multiselect}`}
+			isMulti
+			options={conversionOptions}
+			isClearable={true}
+			components={animatedComponents}
+			onChange={(selectedOptions) => setSelectedConversionOptions(selectedOptions as ConversionOptions[])}
+		/>
+		<div className={`d-flex align-items-baseline mt-3`}>
+			<div>
+				<button
+					onClick={handleConvertClick}
+					disabled={selectedConversionOptions.length === 0 || uploadedFile === undefined}
+					className="btn btn-primary"
+				>
+					Convert
+				</button>
+			</div>
+			<div className={`ms-4`}>
+				{ downloadURI !== undefined && <a href={downloadURI}>Download</a> }
+			</div>
 		</div>
 	</>)
 }

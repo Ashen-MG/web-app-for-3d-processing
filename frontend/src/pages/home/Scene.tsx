@@ -1,81 +1,50 @@
-import React, {useEffect, useRef, useState, Suspense} from 'react';
-import {Canvas, useFrame, useLoader} from '@react-three/fiber';
-import {Environment, OrbitControls} from '@react-three/drei';
-import sceneStyles from "pages/home/styles/scene.module.scss";
+import React, {Suspense, useEffect, useState} from "react";
+import {Canvas} from "@react-three/fiber";
+import {OrbitControls, Environment} from "@react-three/drei";
 import {Model} from "./components/model/Model";
-import {socket} from "app/http";
-import config from "config";
-import {UploadedFileProp} from "../../app/App";
+import {UploadedFileProp} from "app/App";
+import {useFileReader} from "./hooks";
+import sceneStyles from "pages/home/styles/scene.module.scss";
+import {getFileExtension} from "../../app/helpers/global";
+import {Provider} from "react-redux";
+import {store} from "app/store";
 
-/*
-To examine:
-https://discourse.threejs.org/t/creating-point-cloud-with-a-points-stream-from-server/5460/2
-*/
-
-interface ScenePLYProps {
-	file?: File
-}
-
-// TODO: handle error if extension is correct but file is broken
-const ScenePLY = ({file}: ScenePLYProps) => {
-
-	const [fileDataURL, setFileDataURL] = useState<string>("");
-
-	useEffect(() => {
-		if (file === undefined)
-			return
-		if (!config.supportedFileTypesForVisualization.includes(file.name.split(".").pop()!)) {
-			alert("Unsupported file type.");
-			return
-		}
-		const reader: FileReader = new FileReader();
-		reader.onload = () => {
-			// console.log(sizeOf({filename: file.name, type: file.type, content: reader.result}) / 1000_000, "MB");
-			// let base64String = reader.result.split(',').pop(); base64 encoding uses [a-z, A-Z, 0-9, +, /]
-			// empirically tested - can only send max to `(reader.result as string).length` <= 999_972.
-			// socket.emit("fileUpload", {filename: file.name, type: file.type, content: reader.result})
-
-			// TODO: send file by chunks
-			setFileDataURL(reader.result as string);
-		}
-		// result will be string (for readAsArrayBuffer it would be ArrayBuffer)
-		reader.readAsDataURL(file as Blob)
-	}, [file])
-
-	return (
-		<>
-			{ fileDataURL.length !== 0 && <Model fileDataURL={fileDataURL}/> }
-		</>
-	)
-}
-
+/**
+ * Main 3D scene.
+ * Prepare uploaded point cloud.
+ * TODO: verify extension, Model.tsx must receive correct point cloud i.e. all checks must be here
+ * */
 export const Scene = ({uploadedFile}: UploadedFileProp) => {
 
-	/* socketio example
-	const processingResponse = (file: string) => {}
-	socket.on("processingResponse", processingResponse);
+	const uploadedFileData: string | undefined = useFileReader(uploadedFile);
+	const [fileExtension, setFileExtension] = useState<string>("");
+
 	useEffect(() => {
-		return () => {
-			socket.off("processingResponse", processingResponse);
-		}
-	});
-	 */
+		if (uploadedFile !== undefined)
+			setFileExtension(getFileExtension(uploadedFile!.name));
+	}, [uploadedFile]);
+
+	// if we want to use redux store in components that are inside react-fiber-three canvas:
+	// https://github.com/pmndrs/react-three-fiber/issues/43
+	// https://spectrum.chat/react-three-fiber/general/redux-state-to-child-component-of-canvas~a0cce2c2-2254-44a2-82c7-952e37e1a1ff
 
 	return (<>
 		<div className={sceneStyles.container}>
-			<Suspense fallback={<div>Loading... </div>}>
+			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
-				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#000205")}>
-					<ScenePLY file={uploadedFile}/>
-					{/*
-					<ambientLight intensity={0.5} />
-					<Environment
-						background={false}
-						preset={"lobby"}/>
-					*/}
-
-					{/* camera movement control with a mouse */}
-					<OrbitControls />
+				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#0a0a0a")}>
+					<Provider store={store}>
+						{uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) &&
+							<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
+						}
+						{/*
+						<ambientLight intensity={0.5} />
+						<Environment
+							background={false}
+							preset={"lobby"}/>
+						*/}
+						{/* camera movement control with a mouse */}
+					</Provider>
 				</Canvas>
 			</Suspense>
 		</div>

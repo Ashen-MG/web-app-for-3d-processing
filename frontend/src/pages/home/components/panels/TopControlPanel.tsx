@@ -7,74 +7,87 @@ import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
 	Algorithms,
+	setBackendState,
 	setFullscreen,
-	setSelectedAlgorithm,
-	showConvertModal
+	setSelectedAlgorithm, setVisualizationMode,
+	showConvertModal,
+	VISUALIZATION_MODE
 } from "app/context/globalSlice";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import config from "config";
-import React, {useEffect, useRef} from "react";
+import React, {ChangeEvent, useRef} from "react";
 import {UploadFileProps} from "app/App";
 import {useMutation} from "react-query";
-import {apiUpload} from "../../../../app/adapters";
+import {apiUpload} from "app/adapters";
+import createSnackbar, {SnackTypes} from "components/Snackbar";
+import Select from "react-select";
+
+interface VisualizationModeOptions {
+	value: VISUALIZATION_MODE,
+	label: string
+}
+
 
 /** Top control panel = navigation menu.
- *  Options:
- *    - upload to frontend
+ *  Functionality:
+ *    - upload to frontend and backend
  *    - pick algorithms
  *    - convert
- *    - handle fullscreen mode.
+ *    - switch fullscreen mode.
  * */
 export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps) => {
 
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
+	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
 	const openFileDialog = () => inputFile.current?.click();
 
-	// expected to call it only after a file has been uploaded
-	const { mutateAsync: asyncApiUpload } = useMutation(["upload", uploadedFile],
-		() => apiUpload(uploadedFile!),
-		{
-			onSuccess: (response) => {
-				console.log(response)
-			},
-			onError: (error) => {
-				console.log(error);
-			}
-		}
-	);
+	const uploadMutation = useMutation(apiUpload, {
+		onSuccess: (response) => {
+			dispatch(setBackendState(response.data));
+		},
+		onError: () => {
+			createSnackbar("Uploading to server wasn't successful.", SnackTypes.error);
+		},
+	});
 
-	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-		// file will be undefined if user close the file dialog without picking some file
+	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+		// file will be undefined if user closes a file dialog without picking some file
 		const file: File | undefined = e.target.files?.[0];
-		if (file !== undefined)
+		if (file !== undefined) {
 			setUploadedFile(file);
+			uploadMutation.mutate(file);
+		}
 	}
 
-	useEffect(() => {
-		if (uploadedFile !== undefined)
-			asyncApiUpload();
-	}, [uploadedFile]);
+	const handleConvertClick = () => {
+		dispatch(setFullscreen(false));  // modal isn't shown in fullscreen mode
+		dispatch(showConvertModal());
+	}
+
+	const visualizationModeOptions: VisualizationModeOptions[] = [
+		{value: VISUALIZATION_MODE.POINT_CLOUD, label: "point cloud"},
+		{value: VISUALIZATION_MODE.MESH, label: "mesh"}
+	]
 
 	return (
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
 		  <Container fluid={true}>
-			  <Nav className="me-auto ms-3">
-				  <Nav.Link onClick={openFileDialog}>
-					  Upload
-				  </Nav.Link>
+			  <Nav className="me-auto ms-3" as="ul">
+				  <Nav.Item as="li">
+					  <Nav.Link onClick={openFileDialog}>Upload</Nav.Link>
+				  </Nav.Item>
 				  <input type="file"
 				         onChange={handleFileUpload}
-				         accept={config.acceptedFileTypes}
+				         accept={config.acceptedFileExtensions}
 				         ref={inputFile}
 				         hidden
 				  />
-				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown">
-					  {/* TODO: option to see outliers with different color (maybe in sidebar as checkbox) */}
+				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown" as="li">
 					  <NavDropdown.Header>Downscale</NavDropdown.Header>
 					  <NavDropdown.Item
 						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.VOXEL_DOWNSAMPLING))}
@@ -82,23 +95,48 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 						  Voxel downsampling
 					  </NavDropdown.Item>
 					  <NavDropdown.Header>Denoise</NavDropdown.Header>
-					  <NavDropdown.Item href="#action/3.1">Statistical outlier removal</NavDropdown.Item>
-					  <NavDropdown.Item href="#action/3.2">Radius outlier removal</NavDropdown.Item>
+					  <NavDropdown.Item
+						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.STATISTICAL_OUTLIER_REMOVAL))}
+					  >
+						  Statistical outlier removal
+					  </NavDropdown.Item>
+					  <NavDropdown.Item
+						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.RADIUS_OUTLIER_REMOVAL))}
+					  >
+						  Radius outlier removal
+					  </NavDropdown.Item>
 				  </NavDropdown>
-				  <Nav.Link
-					  href="#features"
-					  onClick={() => dispatch(showConvertModal())}
-					  disabled={uploadedFile === undefined}
-				  >
-					  Convert
-				  </Nav.Link>
+				  <Nav.Item as="li">
+					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li">
+					  <Select
+						  options={visualizationModeOptions}
+						  defaultValue={visualizationModeOptions.find(v => v.value === visualizationMode)}
+						  onChange={(selectedOption) => {
+						  	if (selectedOption) dispatch(setVisualizationMode(selectedOption.value))
+						  }}
+					  />
+				  </Nav.Item>
 			  </Nav>
-			  <Nav className="me-3">
-				  <Switch
-					  checked={fullscreenOn}
-					  onChange={(e) =>
-						  dispatch(setFullscreen((e.currentTarget as HTMLInputElement).checked))}
-				  />
+			  <Nav className="me-3 align-items-center" as="ul">
+				  {/* TODO: functionality + icons */}
+				  <Nav.Item as="li">
+					  <Nav.Link>prev</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li">
+					  <Nav.Link>next</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li">
+					  <Nav.Link>reset</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li">
+					  <Switch
+						  checked={fullscreenOn}
+						  onChange={(e) =>
+							  dispatch(setFullscreen((e.currentTarget as HTMLInputElement).checked))}
+					  />
+				  </Nav.Item>
 			  </Nav>
 		  </Container>
 	  </Navbar>

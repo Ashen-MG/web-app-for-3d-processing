@@ -1,8 +1,8 @@
-
+@use "./src/app/styles/defaults.module";
 
 .sidebar {
-  width: 400px;
-  height: calc(100vh - 65px);
+  width: defaults.$sidebarWidth;
+  height: calc(100vh - #{defaults.$navbarWidth});
   background-color: #141414;
   border-left: 1px solid #3d3d3d;
   color: #ededed;

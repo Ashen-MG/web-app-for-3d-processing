@@ -1,5 +1,5 @@
-@use "app/styles/sizing.module";
+@use "./src/app/styles/defaults.module";
 
 .navbar {
-  height: sizing.$navbarWidth;
+  height: defaults.$navbarWidth;
 }

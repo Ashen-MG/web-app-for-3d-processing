@@ -1,7 +1,7 @@
 import open3d as o3d
 import numpy as np
 
-pcFile = r"export\downscaled_pointcloud.ply"
+pcFile = r"C:\Users\Martys\Projects\WorkProjects\bachelor\web-app-for-3d\backend\api\static\uploads\shudx1fdrq1gamwo\v2.ply"
 
 pcd = o3d.io.read_point_cloud(pcFile)
 
@@ -13,7 +13,7 @@ def display_inlier_outlier(cloud, ind):
     print("Showing outliers (red) and inliers (gray): ")
     outlier_cloud.paint_uniform_color([1, 0, 0])
     inlier_cloud.paint_uniform_color([0.8, 0.8, 0.8])
-    o3d.visualization.draw_geometries([inlier_cloud], width=1280, height=780, top=-100, left=2000)
+    o3d.visualization.draw_geometries([outlier_cloud, inlier_cloud], width=1000, height=780, top=100, left=2000)
 
 print("Statistical oulier removal")
 cl, ind = pcd.remove_statistical_outlier(nb_neighbors=200, std_ratio=.7)
