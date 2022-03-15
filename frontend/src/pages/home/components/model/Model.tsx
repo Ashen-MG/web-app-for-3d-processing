@@ -32,6 +32,7 @@ interface FileExtension {
 /**
  * Abstract model for a point cloud (parent).
  * @param fileData Raw data from the point cloud file.
+ * @param fileExtension
  */
 export const Model = ({fileData, fileExtension}: FileData & FileExtension) => {
 
@@ -40,6 +41,11 @@ export const Model = ({fileData, fileExtension}: FileData & FileExtension) => {
 	const [_fileData, setFileData] = useState<string>(fileData);
 	const [_fileExtension, setFileExtension] = useState<string>(fileExtension);
 
+	useEffect(() => {
+		setFileData(fileData);
+		setFileExtension(fileExtension);
+	}, [fileData, fileExtension]);
+	
 	useEffect(() => {
 		if (backendState === undefined || backendState.version <= 1) return;
 		setFileData(createApiURI(backendState.file.url));

@@ -16,14 +16,14 @@ import {
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import config from "config";
-import React, {useRef} from "react";
+import {ChangeEvent, useRef} from "react";
 import {UploadFileProps} from "app/App";
 import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
 
 /** Top control panel = navigation menu.
- *  Options:
+ *  Functionality:
  *    - upload to frontend and backend
  *    - pick algorithms
  *    - convert
@@ -33,7 +33,6 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
-	const backendState: FileState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
@@ -43,19 +42,23 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		onSuccess: (response) => {
 			dispatch(setBackendState(response.data));
 		},
-		onError: (error) => {
-			console.error(error);
+		onError: () => {
 			createSnackbar("Uploading to server wasn't successful.", SnackTypes.error);
 		},
 	});
 
-	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-		// file will be undefined if user close the file dialog without picking some file
+	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+		// file will be undefined if user closes a file dialog without picking some file
 		const file: File | undefined = e.target.files?.[0];
 		if (file !== undefined) {
 			setUploadedFile(file);
 			uploadMutation.mutate(file);
 		}
+	}
+
+	const handleConvertClick = () => {
+		dispatch(setFullscreen(false));  // modal isn't shown in fullscreen mode
+		dispatch(showConvertModal());
 	}
 
 	return (
@@ -72,7 +75,6 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				         hidden
 				  />
 				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown" as="li">
-					  {/* TODO?: option to see outliers with different color (maybe in sidebar as checkbox) */}
 					  <NavDropdown.Header>Downscale</NavDropdown.Header>
 					  <NavDropdown.Item
 						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.VOXEL_DOWNSAMPLING))}
@@ -92,12 +94,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 					  </NavDropdown.Item>
 				  </NavDropdown>
 				  <Nav.Item as="li">
-					  <Nav.Link
-						  onClick={() => dispatch(showConvertModal())}
-						  disabled={uploadedFile === undefined || backendState === undefined}
-					  >
-						  Convert
-					  </Nav.Link>
+					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
 				  </Nav.Item>
 			  </Nav>
 			  <Nav className="me-3 align-items-center" as="ul">

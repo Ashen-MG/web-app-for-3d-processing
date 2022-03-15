@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "app/styles/base.scss";
 import {App} from "app/App";
-import { store } from './app/store';
-import { Provider } from 'react-redux';
+import {store} from './app/store';
+import {Provider} from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 import {QueryClient, QueryClientProvider} from "react-query";
 

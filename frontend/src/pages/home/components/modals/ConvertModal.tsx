@@ -1,17 +1,17 @@
 import Select from "react-select";
 import React, {useState} from "react";
 import makeAnimated from "react-select/animated";
-import {socket} from "app/http";
-import {Modal} from "react-bootstrap";
+import {Form, Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import {useDispatch} from "react-redux";
 import {hideConvertModal} from "app/context/globalSlice";
 import {UploadedFileProp} from "app/App";
 import {useMutation} from "react-query";
-import {apiConvert, apiUpload} from "app/adapters";
+import {apiConvert} from "app/adapters";
 import {createApiURI} from "app/helpers/global";
 import styles from "./styles/convert_modal.module.scss";
+import config from "../../../../config";
 
 export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 
@@ -91,6 +91,12 @@ const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 	}
 
 	return (<>
+		<input type="file"
+		       accept={config.acceptedFileExtensions}
+		/>
+		<div key="convert-uploaded">  {/* TODO: disable if there's no uploaded file */}
+			<Form.Check type="checkbox" id="convert-uploaded" label="convert uploaded" />
+		</div>
 		<Select
 			className={`${styles.multiselect}`}
 			isMulti
