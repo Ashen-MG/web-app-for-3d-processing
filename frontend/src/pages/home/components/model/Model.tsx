@@ -14,7 +14,7 @@ import {XYZLoader} from "three/examples/jsm/loaders/XYZLoader";  // supports xyz
 import {PCDLoader} from "three/examples/jsm/loaders/PCDLoader";
 import {RootState} from "app/store";
 import {useAppSelector} from "app/hooks";
-import {FileState} from "app/context/globalSlice";
+import {FileState, VISUALIZATION_MODE} from "app/context/globalSlice";
 import {createApiURI} from "app/helpers/global";
 import * as THREE from "three";
 import {OrbitControls, PerspectiveCamera, useMatcapTexture} from "@react-three/drei";
@@ -86,6 +86,8 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 
 	//const currentBackendFileUrl: string | undefined
 	//= useAppSelector((state: RootState) => state.global.currentBackendFileUrl);
+
+	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
 
 	const [cleanGeometry, setCleanGeometry] = useState<BufferGeometry>();
 
@@ -170,16 +172,19 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 
 	const { camera, gl } = useThree();
 
-	return (<>
+	return <>
 		<group dispose={null}>
-			<mesh geometry={geometry} material={meshMatcam} castShadow receiveShadow onClick={() => {
+			{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
+				?
+				<points geometry={geometry} material={material}/>
+				:
+				<mesh geometry={geometry} material={meshMatcam} castShadow receiveShadow onClick={() => {
 				// just testing
 				// camera.zoom += .5;
 				// camera.updateProjectionMatrix();
-			}} />
-			{/* <points geometry={cleanGeometry} material={material}/> */}
+			}}/>
+			}
 		</group>
 		<OrbitControls target={vector} />
 	</>
-	)
 }

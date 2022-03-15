@@ -46,7 +46,7 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
   )
 }
 
-export type ConversionOptions = {
+export interface ConversionOptions {
 	value: string,
 	label: string
 }

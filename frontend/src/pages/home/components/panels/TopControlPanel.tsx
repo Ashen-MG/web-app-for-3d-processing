@@ -7,20 +7,27 @@ import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
 	Algorithms,
-	FileState,
 	setBackendState,
 	setFullscreen,
-	setSelectedAlgorithm,
-	showConvertModal
+	setSelectedAlgorithm, setVisualizationMode,
+	showConvertModal,
+	VISUALIZATION_MODE
 } from "app/context/globalSlice";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import config from "config";
-import {ChangeEvent, useRef} from "react";
+import React, {ChangeEvent, useRef} from "react";
 import {UploadFileProps} from "app/App";
 import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
+import Select from "react-select";
+
+interface VisualizationModeOptions {
+	value: VISUALIZATION_MODE,
+	label: string
+}
+
 
 /** Top control panel = navigation menu.
  *  Functionality:
@@ -33,6 +40,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
+	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
@@ -60,6 +68,11 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		dispatch(setFullscreen(false));  // modal isn't shown in fullscreen mode
 		dispatch(showConvertModal());
 	}
+
+	const visualizationModeOptions: VisualizationModeOptions[] = [
+		{value: VISUALIZATION_MODE.POINT_CLOUD, label: "point cloud"},
+		{value: VISUALIZATION_MODE.MESH, label: "mesh"}
+	]
 
 	return (
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
@@ -95,6 +108,15 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				  </NavDropdown>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li">
+					  <Select
+						  options={visualizationModeOptions}
+						  defaultValue={visualizationModeOptions.find(v => v.value === visualizationMode)}
+						  onChange={(selectedOption) => {
+						  	if (selectedOption) dispatch(setVisualizationMode(selectedOption.value))
+						  }}
+					  />
 				  </Nav.Item>
 			  </Nav>
 			  <Nav className="me-3 align-items-center" as="ul">

@@ -16,18 +16,25 @@ export interface FileState {
 	version: number
 }
 
+export enum VISUALIZATION_MODE {
+	POINT_CLOUD,
+	MESH
+}
+
 export interface GlobalState {
 	fullscreen: boolean,
 	convertModalShown: boolean,
 	selectedAlgorithm: Algorithms,
-	backendState: FileState | undefined
+	backendState: FileState | undefined,
+	visualizationMode: VISUALIZATION_MODE
 }
 
 const initialState: GlobalState = {
 	fullscreen: false,
 	convertModalShown: false,
 	selectedAlgorithm: Algorithms.NONE,
-	backendState: undefined
+	backendState: undefined,
+	visualizationMode: VISUALIZATION_MODE.POINT_CLOUD
 }
 
 export const globalSlice = createSlice({
@@ -49,6 +56,9 @@ export const globalSlice = createSlice({
 		setBackendState: (state, action: PayloadAction<FileState>) => {
 			state.backendState = action.payload;
 		},
+		setVisualizationMode: (state, action: PayloadAction<VISUALIZATION_MODE>) => {
+			state.visualizationMode = action.payload;
+		},
 	}
 });
 
@@ -58,6 +68,7 @@ export const {
 	hideConvertModal,
 	setSelectedAlgorithm,
 	setBackendState,
+	setVisualizationMode
 } = globalSlice.actions;
 
 export default globalSlice.reducer;
