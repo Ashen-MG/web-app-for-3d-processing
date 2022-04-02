@@ -92,6 +92,18 @@ def download():
 
 @app.route("/api/convert", methods=["POST"])
 def convert():
+	"""from os.path import join as joinPath
+	# TODO: get file
+	convertTypes = request.json["convertTypes"]
+	currentFilePath = joinPath(app.root_path, "static", "uploads", token, f"v{currentVersion}.{fileExtension}")
+	exportPath = joinPath(app.root_path, "static", "exports", token)
+	createConversions(currentFilePath, exportPath, convertTypes)
+	return {
+		"fileURL": url_for("static", filename=f"exports/{token}/converted.zip")
+	}"""
+
+@app.route("/api/export", methods=["POST"])
+def export():
 	from os.path import join as joinPath
 	token = request.json["token"]
 	currentVersion = request.json["version"]

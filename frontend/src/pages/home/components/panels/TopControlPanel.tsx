@@ -10,7 +10,7 @@ import {
 	setBackendState,
 	setFullscreen,
 	setSelectedAlgorithm, setVisualizationMode,
-	showConvertModal,
+	showConvertModal, showExportModal,
 	VISUALIZATION_MODE
 } from "app/context/globalSlice";
 import {useAppSelector} from "app/hooks";
@@ -41,6 +41,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
 	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
+	const backendState = useAppSelector((state: RootState) => state.global.backendState);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
@@ -67,6 +68,11 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	const handleConvertClick = () => {
 		dispatch(setFullscreen(false));  // modal isn't shown in fullscreen mode
 		dispatch(showConvertModal());
+	}
+
+	const handleExportClick = () => {
+		dispatch(setFullscreen(false));  // modal isn't shown in fullscreen mode
+		dispatch(showExportModal());
 	}
 
 	const visualizationModeOptions: VisualizationModeOptions[] = [
@@ -115,7 +121,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={handleConvertClick}>Export</Nav.Link>
+					  <Nav.Link onClick={handleExportClick} disabled={backendState?.file === undefined}>Export</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Select

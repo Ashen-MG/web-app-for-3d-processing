@@ -4,7 +4,7 @@ from random import choices as randomChoices
 from string import ascii_lowercase as letters
 from string import digits
 from werkzeug.datastructures import FileStorage
-from config import ALLOWED_EXTENSIONS, SAVING_FOLDER
+from config import ALLOWED_EXTENSIONS, SAVING_FOLDER, EXPORTS_FOLDER
 
 class File:
 	def __init__(self, appRootPath: str, file: FileStorage):
@@ -20,6 +20,7 @@ class File:
 		fileExtension = self.uploadedFile.filename.split(".")[-1].lower()
 		absoluteDirPath: str = self._getAbsoluteSavingPath(dirName)
 		mkdir(absoluteDirPath)
+		mkdir(joinPath(self.appRootPath, EXPORTS_FOLDER, dirName))
 		fileName = f"v{version}.{fileExtension}"
 		self.uploadedFile.save(joinPath(absoluteDirPath, fileName))
 		return fileName, fileExtension

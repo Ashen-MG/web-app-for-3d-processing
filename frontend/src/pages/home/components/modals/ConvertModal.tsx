@@ -5,39 +5,53 @@ import {Form, Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import {useDispatch} from "react-redux";
-import {hideConvertModal} from "app/context/globalSlice";
+import {
+	ExportModal,
+	hideExportModal
+} from "app/context/globalSlice";
 import {UploadedFileProp} from "app/App";
 import {useMutation} from "react-query";
-import {apiConvert} from "app/adapters";
+import {apiExport} from "app/adapters";
 import {createApiURI} from "app/helpers/global";
 import styles from "./styles/convert_modal.module.scss";
-import config from "../../../../config";
+import config from "config";
+import createSnackbar, {SnackTypes} from "../../../../components/Snackbar";
+
+type ModalMode = "Export" | "Convert";
 
 export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 
 	const dispatch = useDispatch();
-	const modalShown: boolean = useAppSelector((state: RootState) => state.global.convertModalShown);
+	const exportModal: ExportModal = useAppSelector((state: RootState) => state.global.exportModal);
 
 	// TODO: show info about uploaded file in the modal
 
+	const mode: ModalMode = exportModal.convert ? "Convert" : "Export";
+
   return (
 	  <Modal
-		  show={modalShown}
-		  onHide={() => dispatch(hideConvertModal())}
+		  show={exportModal.shown}
+		  onHide={() => dispatch(hideExportModal())}
 		  size="lg"
 		  aria-labelledby="contained-modal-title-vcenter"
 		  centered
 	  >
 		  <Modal.Header closeButton>
-			  <Modal.Title id="contained-modal-title-vcenter">
-				  Convert uploaded file
+			  <Modal.Title id="contained-modal-title-vcenter" style={{lineHeight: ".5"}}>
+					<h4>{`${mode} ${!exportModal.convert ? "uploaded": ""} file`}</h4>
+					{exportModal.convert &&
+						<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
+							Convert file without the need of initial uploading and visualization.
+							This method is faster to use if you only want to convert your model.
+						</small>
+					}
 			  </Modal.Title>
 		  </Modal.Header>
 		  <Modal.Body>
-			  <ModalBody uploadedFile={uploadedFile} />
+			  <ModalBody uploadedFile={uploadedFile} mode={mode}/>
 		  </Modal.Body>
 		  <Modal.Footer>
-			  <button className="btn btn-dark" onClick={() => dispatch(hideConvertModal())}>
+			  <button className="btn btn-dark" onClick={() => dispatch(hideExportModal())}>
 				  Close
 			  </button>
 		  </Modal.Footer>
@@ -61,41 +75,47 @@ const conversionOptions: ConversionOptions[] = [
 	{value: "pcd", label: "pcd"}
 ]
 
-const ModalBody = ({uploadedFile}: UploadedFileProp) => {
+const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) => {
 
+	const dispatch = useDispatch();
+	const backendState = useAppSelector((state: RootState) => state.global.backendState);
+	const exportModal: ExportModal = useAppSelector((state: RootState) => state.global.exportModal);
 	const [selectedConversionOptions, setSelectedConversionOptions] = useState<ConversionOptions[]>([]);
 	const [downloadURI, setDownloadURI] = useState<string | undefined>();
 
-	const { mutateAsync: asyncApiConvert } = useMutation(["convert", selectedConversionOptions],
-		() => apiConvert(
-			selectedConversionOptions.map((convertType) => convertType.value)
-		),
-		{
-			onSuccess: (response) => {
-				// TODO: disable convert button and enable here
-				setDownloadURI(createApiURI(response.data.fileURL));
-			},
-			onError: (error) => {
-				console.log(error);
-			}
+	const exportMutation = useMutation(apiExport, {
+		onSuccess: (response) => {
+			setDownloadURI(createApiURI(response.data.fileURL));
+		},
+		onError: (error) => {
+			console.error(error);
 		}
-	);
+	});
 
-	const handleConvertClick = () => {
-		if (selectedConversionOptions.length !== 0) {
-			asyncApiConvert();
-			// socket.emit("convert");
+	const handleExportClick = () => {
+		if (selectedConversionOptions.length === 0) {
+			createSnackbar("You have to pick some conversion types.", SnackTypes.warning);
 		}
-		// TODO: else snackbar: Pick some conversion types
+		else if (exportModal.convert) {
+			// TODO: api convert
+		}
+		else {
+			exportMutation.mutate({
+				token: backendState!.token,
+				version: backendState!.version,
+				fileExtension: backendState!.file.extension,
+				convertTypes: selectedConversionOptions.map((convertType) => convertType.value)
+			});
+		}
 	}
 
 	return (<>
-		<input type="file"
-		       accept={config.acceptedFileExtensions}
-		/>
-		<div key="convert-uploaded">  {/* TODO: disable if there's no uploaded file */}
-			<Form.Check type="checkbox" id="convert-uploaded" label="convert uploaded" />
-		</div>
+		{exportModal.convert &&
+			<input type="file"
+						 accept={config.acceptedFileExtensions}
+			/>
+		}
+		{/* TODO: as mesh or point cloud */}
 		<Select
 			className={`${styles.multiselect}`}
 			isMulti
@@ -107,15 +127,15 @@ const ModalBody = ({uploadedFile}: UploadedFileProp) => {
 		<div className={`d-flex align-items-baseline mt-3`}>
 			<div>
 				<button
-					onClick={handleConvertClick}
+					onClick={handleExportClick}
 					disabled={selectedConversionOptions.length === 0 || uploadedFile === undefined}
 					className="btn btn-primary"
 				>
-					Convert
+					{mode}
 				</button>
 			</div>
 			<div className={`ms-4`}>
-				{ downloadURI !== undefined && <a href={downloadURI}>Download</a> }
+				{downloadURI !== undefined && <a href={downloadURI}>Download</a>}
 			</div>
 		</div>
 	</>)

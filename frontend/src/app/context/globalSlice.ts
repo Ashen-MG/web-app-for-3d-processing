@@ -22,9 +22,14 @@ export enum VISUALIZATION_MODE {
 	MESH
 }
 
+export interface ExportModal {
+	shown: boolean,
+	convert: boolean
+}
+
 export interface GlobalState {
 	fullscreen: boolean,
-	convertModalShown: boolean,
+	exportModal: ExportModal,
 	selectedAlgorithm: Algorithms,
 	backendState: FileState | undefined,
 	visualizationMode: VISUALIZATION_MODE
@@ -32,7 +37,10 @@ export interface GlobalState {
 
 const initialState: GlobalState = {
 	fullscreen: false,
-	convertModalShown: false,
+	exportModal: {
+		shown: false,
+		convert: true
+	},
 	selectedAlgorithm: Algorithms.NONE,
 	backendState: undefined,
 	visualizationMode: VISUALIZATION_MODE.POINT_CLOUD
@@ -45,11 +53,16 @@ export const globalSlice = createSlice({
 		setFullscreen: (state, action: PayloadAction<boolean>) => {
 			state.fullscreen = action.payload;
 		},
-		showConvertModal: (state) => {
-			state.convertModalShown = true;
+		showExportModal: (state) => {
+			state.exportModal.shown = true;
+			state.exportModal.convert = false;
 		},
-		hideConvertModal: (state) => {
-			state.convertModalShown = false;
+		showConvertModal: (state) => {
+			state.exportModal.shown = true;
+			state.exportModal.convert = true;
+		},
+		hideExportModal: (state) => {
+			state.exportModal.shown = false;
 		},
 		setSelectedAlgorithm: (state, action: PayloadAction<Algorithms>) => {
 			state.selectedAlgorithm = action.payload;
@@ -65,8 +78,9 @@ export const globalSlice = createSlice({
 
 export const {
 	setFullscreen,
+	showExportModal,
 	showConvertModal,
-	hideConvertModal,
+	hideExportModal,
 	setSelectedAlgorithm,
 	setBackendState,
 	setVisualizationMode

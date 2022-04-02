@@ -38,8 +38,6 @@ export const apiRadiusOutlierRemoval = (
 	return axios.put("/algorithms/radius-outlier-removal", props);
 }
 
-export const apiConvert = (convertTypes: string[]): Promise<AxiosResponse<DefaultResponse>> => {
-	return axios.post("/convert", {
-		convertTypes: convertTypes
-	});
+export const apiExport = (props: CurrentVersion & {convertTypes: string[]}): Promise<AxiosResponse<DefaultResponse>> => {
+	return axios.post("/export", props);
 }
