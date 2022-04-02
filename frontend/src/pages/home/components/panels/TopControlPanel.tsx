@@ -88,7 +88,12 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				         hidden
 				  />
 				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown" as="li">
-					  <NavDropdown.Header>Downscale</NavDropdown.Header>
+					  <NavDropdown.Header>Sampling</NavDropdown.Header>
+					  <NavDropdown.Item
+						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.POISSON_SAMPLING))}
+					  >
+						  Poisson sampling
+					  </NavDropdown.Item>
 					  <NavDropdown.Item
 						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.VOXEL_DOWNSAMPLING))}
 					  >
@@ -108,6 +113,9 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				  </NavDropdown>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li">
+					  <Nav.Link onClick={handleConvertClick}>Export</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Select

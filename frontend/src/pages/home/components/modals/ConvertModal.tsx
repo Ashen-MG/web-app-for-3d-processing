@@ -19,7 +19,6 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 	const modalShown: boolean = useAppSelector((state: RootState) => state.global.convertModalShown);
 
 	// TODO: show info about uploaded file in the modal
-	// TODO: modal isn't shown in fullscreen mode
 
   return (
 	  <Modal

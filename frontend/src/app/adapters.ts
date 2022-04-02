@@ -22,6 +22,10 @@ export const apiVoxelDownsampling = (props: CurrentVersion & {voxelSize: number}
 	return axios.put("/algorithms/voxel-downsampling", props);
 }
 
+export const apiPoissonSampling = (props: CurrentVersion & {numberOfPoints: number}): Promise<AxiosResponse<FileState>> => {
+	return axios.put("/algorithms/poisson-sampling", props);
+}
+
 export const apiStatisticalOutlierRemoval = (
 	props: CurrentVersion & {numberOfNeighbors: number, stdRatio: number}
 ): Promise<AxiosResponse<FileState>> => {

@@ -5,6 +5,7 @@ import {Algorithms} from "app/context/globalSlice";
 import {VoxelDownsampling} from "../algorithms/VoxelDownsampling";
 import {StatisticalOutlierRemoval} from "../algorithms/StatisticalOutlierRemoval";
 import {RadiusOutlierRemoval} from "../algorithms/RadiusOutlierRemoval";
+import {PoissonSampling} from "../algorithms/PoissonSampling";
 
 /** Sidebar algorithm and its parameters control panel. */
 export const SidebarControlPanel = () => {
@@ -16,8 +17,9 @@ export const SidebarControlPanel = () => {
 			case Algorithms.VOXEL_DOWNSAMPLING:             return <VoxelDownsampling />;
 			case Algorithms.STATISTICAL_OUTLIER_REMOVAL:    return <StatisticalOutlierRemoval />;
 			case Algorithms.RADIUS_OUTLIER_REMOVAL:         return <RadiusOutlierRemoval />;
+			case Algorithms.POISSON_SAMPLING:               return <PoissonSampling />;
 			default:
-				return <NoAlgorithmSelected />;
+				return <NoAlgorithm />;
 		}
 	}
 
@@ -28,7 +30,7 @@ export const SidebarControlPanel = () => {
 	)
 }
 
-const NoAlgorithmSelected = () => {
+const NoAlgorithm = () => {
 	return (
 		<small>Algorithm parameters will show up here.</small>
 	)

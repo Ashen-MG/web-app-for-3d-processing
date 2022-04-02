@@ -1,7 +1,7 @@
 venv
 api/static/*
 !api/static/uploads
-!api/static/export
+!api/static/exports
 api/static/uploads/*
 !api/static/uploads/.keep
-!api/static/export/.keep
+!api/static/exports/.keep
