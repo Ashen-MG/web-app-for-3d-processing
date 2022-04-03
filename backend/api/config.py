@@ -8,4 +8,5 @@ importing `from flask import current_app` and accessing in the same way i.e. cur
 UPLOADS_FOLDER = "uploads"
 SAVING_FOLDER = fr"static\{UPLOADS_FOLDER}"
 EXPORTS_FOLDER = fr"static\exports"
-ALLOWED_EXTENSIONS = {"ply", "pcd", "xyz", "xyzrgb"}
+ALLOWED_EXTENSIONS = {"ply", "pcd", "xyz", "xyzrgb", "pts"}
+ALLOWED_MESH_EXTENSIONS = {"ply"}

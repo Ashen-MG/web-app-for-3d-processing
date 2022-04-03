@@ -15,7 +15,7 @@ import {apiExport} from "app/adapters";
 import {createApiURI} from "app/helpers/global";
 import styles from "./styles/convert_modal.module.scss";
 import config from "config";
-import createSnackbar, {SnackTypes} from "../../../../components/Snackbar";
+import createSnackbar, {SnackTypes} from "components/Snackbar";
 
 type ModalMode = "Export" | "Convert";
 
@@ -39,11 +39,16 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 		  <Modal.Header closeButton>
 			  <Modal.Title id="contained-modal-title-vcenter" style={{lineHeight: ".5"}}>
 					<h4>{`${mode} ${!exportModal.convert ? "uploaded": ""} file`}</h4>
-					{exportModal.convert &&
-						<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
-							Convert file without the need of initial uploading and visualization.
-							This method is faster to use if you only want to convert your model.
-						</small>
+					{exportModal.convert
+						?
+							<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
+								Convert file without the need of initial uploading and visualization.
+								This method is faster to use if you only want to convert your model.
+							</small>
+						:
+							<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
+								Export your current version of the 3D model. If it's a mesh, only a PLY data format will be exported.
+							</small>
 					}
 			  </Modal.Title>
 		  </Modal.Header>
