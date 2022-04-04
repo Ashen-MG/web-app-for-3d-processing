@@ -41,3 +41,10 @@ export const apiRadiusOutlierRemoval = (
 export const apiExport = (props: CurrentVersion & {convertTypes: string[]}): Promise<AxiosResponse<DefaultResponse>> => {
 	return axios.post("/export", props);
 }
+
+export const apiConvert = (props: {file: File, convertTypes: string[]}): Promise<AxiosResponse<DefaultResponse>> => {
+	const formData = new FormData();
+	formData.append("file", props.file);
+	formData.append("convertTypes", JSON.stringify(props.convertTypes));
+	return axios.post("/convert", formData);
+}

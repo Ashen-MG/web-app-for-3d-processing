@@ -1,5 +1,5 @@
 import Select from "react-select";
-import React, {useState} from "react";
+import React, {ChangeEvent, useState} from "react";
 import makeAnimated from "react-select/animated";
 import {Form, Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
@@ -9,9 +9,9 @@ import {
 	ExportModal,
 	hideExportModal
 } from "app/context/globalSlice";
-import {UploadedFileProp} from "app/App";
+import {UploadedFileProp, UploadFile} from "app/App";
 import {useMutation} from "react-query";
-import {apiExport} from "app/adapters";
+import {apiConvert, apiExport} from "app/adapters";
 import {createApiURI} from "app/helpers/global";
 import styles from "./styles/convert_modal.module.scss";
 import config from "config";
@@ -42,7 +42,7 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 					{exportModal.convert
 						?
 							<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
-								Convert file without the need of initial uploading and visualization.
+								Convert a file without the need of initial uploading and visualization.
 								This method is faster to use if you only want to convert your model.
 							</small>
 						:
@@ -88,7 +88,25 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 	const [selectedConversionOptions, setSelectedConversionOptions] = useState<ConversionOptions[]>([]);
 	const [downloadURI, setDownloadURI] = useState<string | undefined>();
 
+	const [convertFile, setConvertFile] = useState<UploadFile>();
+
+	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+		// file will be undefined if user closes a file dialog without picking some file
+		const file: File | undefined = e.target.files?.[0];
+		if (file !== undefined)
+			setConvertFile(file);
+	}
+
 	const exportMutation = useMutation(apiExport, {
+		onSuccess: (response) => {
+			setDownloadURI(createApiURI(response.data.fileURL));
+		},
+		onError: (error) => {
+			console.error(error);
+		}
+	});
+
+	const convertMutation = useMutation(apiConvert, {
 		onSuccess: (response) => {
 			setDownloadURI(createApiURI(response.data.fileURL));
 		},
@@ -102,7 +120,11 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 			createSnackbar("You have to pick some conversion types.", SnackTypes.warning);
 		}
 		else if (exportModal.convert) {
-			// TODO: api convert
+			if (convertFile === undefined) return;
+			convertMutation.mutate({
+				file: convertFile,
+				convertTypes: selectedConversionOptions.map((convertType) => convertType.value)
+			});
 		}
 		else {
 			exportMutation.mutate({
@@ -116,9 +138,10 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 
 	return (<>
 		{exportModal.convert &&
-			<input type="file"
-						 accept={config.acceptedFileExtensions}
-			/>
+        <input type="file"
+               onChange={handleFileUpload}
+               accept={config.acceptedFileExtensions}
+        />
 		}
 		{/* TODO: as mesh or point cloud */}
 		<Select
@@ -133,7 +156,9 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 			<div>
 				<button
 					onClick={handleExportClick}
-					disabled={selectedConversionOptions.length === 0 || uploadedFile === undefined}
+					disabled={selectedConversionOptions.length === 0 || (uploadedFile === undefined && !exportModal.convert) ||
+									  convertFile === undefined
+									 }
 					className="btn btn-primary"
 				>
 					{mode}

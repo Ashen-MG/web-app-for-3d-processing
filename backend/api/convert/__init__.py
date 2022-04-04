@@ -23,4 +23,3 @@ def createZip(outputZipFilename: str, convertedFiles: list):
 	for file in convertedFiles:
 		zipf.write(file, arcname=f"converted.{file.split('.')[-1]}")
 	zipf.close()
-
