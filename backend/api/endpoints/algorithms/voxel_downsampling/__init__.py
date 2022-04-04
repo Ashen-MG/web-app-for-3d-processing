@@ -27,4 +27,5 @@ class VoxelDownsamplingView(SwaggerView):
 			},
 			"token": token,
 			"version": nextVersion,
+			"highestVersion": nextVersion
 		}

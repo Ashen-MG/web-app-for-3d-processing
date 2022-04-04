@@ -28,4 +28,5 @@ class RadiusOutlierRemovalView(SwaggerView):
 			},
 			"token": token,
 			"version": nextVersion,
+			"highestVersion": nextVersion
 		}

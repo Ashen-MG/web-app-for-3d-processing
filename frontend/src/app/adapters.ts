@@ -9,6 +9,7 @@ export type DefaultResponse = {
 export interface CurrentVersion {
 	token: string,
 	version: number,
+	highestVersion: number,
 	fileExtension: string
 }
 

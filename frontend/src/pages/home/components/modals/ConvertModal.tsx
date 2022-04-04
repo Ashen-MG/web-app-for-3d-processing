@@ -130,6 +130,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 			exportMutation.mutate({
 				token: backendState!.token,
 				version: backendState!.version,
+				highestVersion: backendState!.highestVersion,
 				fileExtension: backendState!.file.extension,
 				convertTypes: selectedConversionOptions.map((convertType) => convertType.value)
 			});

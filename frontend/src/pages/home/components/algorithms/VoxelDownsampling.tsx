@@ -29,6 +29,7 @@ export const VoxelDownsampling = () => {
 		mutation.mutate({
 			token: backendState!.token,
 			version: backendState!.version,
+			highestVersion: backendState!.highestVersion,
 			fileExtension: backendState!.file.extension,
 			voxelSize: parseFloat(voxelSize)
 		});

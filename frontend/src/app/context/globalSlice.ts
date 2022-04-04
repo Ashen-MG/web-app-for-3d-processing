@@ -14,7 +14,8 @@ export interface FileState {
 		extension: string
 	}
 	token: string,
-	version: number
+	version: number,
+	highestVersion: number
 }
 
 export enum VISUALIZATION_MODE {

@@ -47,7 +47,7 @@ export const Model = ({fileData, fileExtension}: FileData & FileExtension) => {
 	}, [fileData, fileExtension]);
 	
 	useEffect(() => {
-		if (backendState === undefined || backendState.version <= 1) return;
+		if (backendState === undefined) return;
 		setFileData(createApiURI(backendState.file.url));
 		setFileExtension(backendState.file.extension);
 	}, [backendState]);

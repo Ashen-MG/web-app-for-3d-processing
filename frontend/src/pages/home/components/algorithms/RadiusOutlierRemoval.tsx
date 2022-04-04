@@ -37,6 +37,7 @@ export const RadiusOutlierRemoval = () => {
 		mutation.mutate({
 			token: backendState!.token,
 			version: backendState!.version,
+			highestVersion: backendState!.highestVersion,
 			fileExtension: backendState!.file.extension,
 			numberOfPoints: _numberOfPoints,
 			radius: _radius

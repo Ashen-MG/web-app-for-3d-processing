@@ -61,12 +61,6 @@ app.add_url_rule(
 )
 
 app.add_url_rule(
-	"/api/version/previous",
-	view_func=endpoints.versioning.ConvertView.as_view("previous_version"),
-	methods=["PUT"]
-)
-
-app.add_url_rule(
 	"/api/algorithms/voxel-downsampling",
 	view_func=endpoints.algorithms.voxel_downsampling.VoxelDownsamplingView.as_view("voxel_downsampling"),
 	methods=["PUT"]

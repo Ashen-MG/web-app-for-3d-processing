@@ -25,4 +25,5 @@ class UploadView(SwaggerView):
 			},
 			"token": randomDirName,
 			"version": 1,
+			"highestVersion": 1
 		}

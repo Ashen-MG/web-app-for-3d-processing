@@ -37,6 +37,7 @@ export const StatisticalOutlierRemoval = () => {
 		mutation.mutate({
 			token: backendState!.token,
 			version: backendState!.version,
+			highestVersion: backendState!.highestVersion,
 			fileExtension: backendState!.file.extension,
 			numberOfNeighbors: _numberOfNeighbors,
 			stdRatio: _stdRatio

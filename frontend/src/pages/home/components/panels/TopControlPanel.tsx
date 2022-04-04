@@ -6,7 +6,7 @@ import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
-	Algorithms,
+	Algorithms, FileState,
 	setBackendState,
 	setFullscreen,
 	setSelectedAlgorithm, setVisualizationMode,
@@ -22,6 +22,7 @@ import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
 import Select from "react-select";
+import {createApiURI} from "../../../../app/helpers/global";
 
 interface VisualizationModeOptions {
 	value: VISUALIZATION_MODE,
@@ -73,6 +74,30 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	const handleExportClick = () => {
 		dispatch(setFullscreen(false));  // modal isn't shown in fullscreen mode
 		dispatch(showExportModal());
+	}
+
+	const handlePrevClick = () => {
+		const newBackendState: FileState = JSON.parse(JSON.stringify(backendState!));
+		newBackendState.version--;
+		newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
+		console.log(newBackendState);
+		dispatch(setBackendState(newBackendState));
+	}
+
+	const handleNextClick = () => {
+		const newBackendState: FileState = JSON.parse(JSON.stringify(backendState!));
+		newBackendState.version++;
+		newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
+		console.log(newBackendState);
+		dispatch(setBackendState(newBackendState));
+	}
+
+	const handleResetClick = () => {
+		const newBackendState: FileState = JSON.parse(JSON.stringify(backendState!));
+		newBackendState.version = 1;
+		newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
+		console.log(newBackendState);
+		dispatch(setBackendState(newBackendState));
 	}
 
 	const visualizationModeOptions: VisualizationModeOptions[] = [
@@ -136,13 +161,15 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 			  <Nav className="me-3 align-items-center" as="ul">
 				  {/* TODO: functionality + icons */}
 				  <Nav.Item as="li">
-					  <Nav.Link>prev</Nav.Link>
+					  <Nav.Link onClick={handlePrevClick} disabled={backendState === undefined || backendState.version === 1}>prev</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
-					  <Nav.Link>next</Nav.Link>
+					  <Nav.Link onClick={handleNextClick} disabled={backendState === undefined || backendState.version === backendState.highestVersion}>
+							next
+						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
-					  <Nav.Link>reset</Nav.Link>
+					  <Nav.Link onClick={handleResetClick} disabled={backendState === undefined || backendState.version === 1}>reset</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Switch

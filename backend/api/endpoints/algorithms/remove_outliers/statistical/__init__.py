@@ -28,4 +28,5 @@ class StatisticalOutlierRemovalView(SwaggerView):
 			},
 			"token": token,
 			"version": nextVersion,
+			"highestVersion": nextVersion
 		}

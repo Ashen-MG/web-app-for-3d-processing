@@ -26,4 +26,5 @@ class PoissonSamplingView(SwaggerView):
 			},
 			"token": token,
 			"version": nextVersion,
+			"highestVersion": nextVersion
 		}
