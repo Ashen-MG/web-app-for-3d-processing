@@ -144,7 +144,6 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
                accept={config.acceptedFileExtensions}
         />
 		}
-		{/* TODO: as mesh or point cloud */}
 		<Select
 			className={`${styles.multiselect}`}
 			isMulti
@@ -158,7 +157,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 				<button
 					onClick={handleExportClick}
 					disabled={selectedConversionOptions.length === 0 || (uploadedFile === undefined && !exportModal.convert) ||
-									  convertFile === undefined
+										(convertFile === undefined && exportModal.convert)
 									 }
 					className="btn btn-primary"
 				>

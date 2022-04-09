@@ -1,6 +1,7 @@
 import {axiosProvider as axios} from "app/axios_provider";
 import {AxiosResponse} from "axios";
 import {FileState} from "./context/globalSlice";
+import {CurveUtils} from "three";
 
 export type DefaultResponse = {
 	fileURL: string
@@ -19,24 +20,8 @@ export const apiUpload = (file: File): Promise<AxiosResponse<FileState>> => {
 	return axios.post("/upload", formData);
 }
 
-export const apiVoxelDownsampling = (props: CurrentVersion & {voxelSize: number}): Promise<AxiosResponse<FileState>> => {
-	return axios.put("/algorithms/voxel-downsampling", props);
-}
-
-export const apiPoissonSampling = (props: CurrentVersion & {numberOfPoints: number}): Promise<AxiosResponse<FileState>> => {
-	return axios.put("/algorithms/poisson-sampling", props);
-}
-
-export const apiStatisticalOutlierRemoval = (
-	props: CurrentVersion & {numberOfNeighbors: number, stdRatio: number}
-): Promise<AxiosResponse<FileState>> => {
-	return axios.put("/algorithms/statistical-outlier-removal", props);
-}
-
-export const apiRadiusOutlierRemoval = (
-	props: CurrentVersion & {numberOfPoints: number, radius: number}
-): Promise<AxiosResponse<FileState>> => {
-	return axios.put("/algorithms/radius-outlier-removal", props);
+export const apiApplyAlgorithm = (props: {currentVersion: CurrentVersion, apiPath: string, algorithmParameters: object}): Promise<AxiosResponse<FileState>> => {
+	return axios.put(props.apiPath, {...props.currentVersion, ...props.algorithmParameters});
 }
 
 export const apiExport = (props: CurrentVersion & {convertTypes: string[]}): Promise<AxiosResponse<DefaultResponse>> => {

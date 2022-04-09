@@ -6,6 +6,7 @@ def createConversions(filename: str, outputFilepath: str, convertTypes: list):
 	model, isMesh = o3d.io.read_triangle_mesh(filename), True
 	if len(model.triangles) == 0:
 		model, isMesh = o3d.io.read_point_cloud(filename), False
+	print(isMesh)
 	allowedExtensions = ALLOWED_MESH_EXTENSIONS if isMesh else ALLOWED_EXTENSIONS
 	o3dWrite = o3d.io.write_triangle_mesh if isMesh else o3d.io.write_point_cloud
 	convertedFiles = []  # absolute paths to converted files

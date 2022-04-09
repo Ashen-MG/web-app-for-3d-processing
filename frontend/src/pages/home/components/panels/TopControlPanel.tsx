@@ -6,11 +6,16 @@ import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
-	Algorithms, FileState,
+	Algorithm,
+	AlgorithmCategory,
+	Algorithms,
+	FileState,
 	setBackendState,
 	setFullscreen,
-	setSelectedAlgorithm, setVisualizationMode,
-	showConvertModal, showExportModal,
+	setSelectedAlgorithm,
+	setVisualizationMode,
+	showConvertModal,
+	showExportModal,
 	VISUALIZATION_MODE
 } from "app/context/globalSlice";
 import {useAppSelector} from "app/hooks";
@@ -22,7 +27,6 @@ import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
 import Select from "react-select";
-import {createApiURI} from "../../../../app/helpers/global";
 
 interface VisualizationModeOptions {
 	value: VISUALIZATION_MODE,
@@ -43,6 +47,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
 	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
 	const backendState = useAppSelector((state: RootState) => state.global.backendState);
+	const algorithms: Algorithms = useAppSelector((state: RootState) => state.global.algorithms);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
 
@@ -105,6 +110,8 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		{value: VISUALIZATION_MODE.MESH, label: "mesh"}
 	]
 
+	const renderedCategories = new Set<AlgorithmCategory>();
+
 	return (
 	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
 		  <Container fluid={true}>
@@ -118,29 +125,18 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				         ref={inputFile}
 				         hidden
 				  />
-				  <NavDropdown title="Algorithms" id="collasible-nav-dropdown" as="li">
-					  <NavDropdown.Header>Sampling</NavDropdown.Header>
-					  <NavDropdown.Item
-						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.POISSON_SAMPLING))}
-					  >
-						  Poisson sampling
-					  </NavDropdown.Item>
-					  <NavDropdown.Item
-						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.VOXEL_DOWNSAMPLING))}
-					  >
-						  Voxel downsampling
-					  </NavDropdown.Item>
-					  <NavDropdown.Header>Denoise</NavDropdown.Header>
-					  <NavDropdown.Item
-						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.STATISTICAL_OUTLIER_REMOVAL))}
-					  >
-						  Statistical outlier removal
-					  </NavDropdown.Item>
-					  <NavDropdown.Item
-						  onClick={() => dispatch(setSelectedAlgorithm(Algorithms.RADIUS_OUTLIER_REMOVAL))}
-					  >
-						  Radius outlier removal
-					  </NavDropdown.Item>
+				  <NavDropdown title="Algorithms" as="li">
+						{algorithms.map((algorithm, i) => {
+							const categoryIsRendered: boolean = renderedCategories.has(algorithm.category);
+							if (!categoryIsRendered)
+								renderedCategories.add(algorithm.category);
+							return <div key={`menu-algorithm-${i}`}>
+								{!categoryIsRendered && <NavDropdown.Header>{algorithm.category}</NavDropdown.Header>}
+								<NavDropdown.Item onClick={() => dispatch(setSelectedAlgorithm(i))}>
+									{algorithm.name}
+								</NavDropdown.Item>
+							</div>;
+						})}
 				  </NavDropdown>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>

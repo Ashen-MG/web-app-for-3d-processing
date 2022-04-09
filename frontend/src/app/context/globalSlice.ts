@@ -1,12 +1,24 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {FormControlProps} from "react-bootstrap/FormControl";
 
-export enum Algorithms {
-	NONE,
-	VOXEL_DOWNSAMPLING,
-	STATISTICAL_OUTLIER_REMOVAL,
-	RADIUS_OUTLIER_REMOVAL,
-	POISSON_SAMPLING
+// TODO: range props
+export interface AlgorithmParameter extends FormControlProps {
+	apiKey: string  // TODO: maybe type in case different than number will come (e.g. File, string)
 }
+
+export enum AlgorithmCategory {
+	DENOISE = "Denoise",
+	SAMPLING = "Sampling"
+}
+
+export interface Algorithm {
+	name: string,
+	apiPath: string,
+	parameters: AlgorithmParameter[],
+	category: AlgorithmCategory
+}
+
+export type Algorithms = Algorithm[];
 
 export interface FileState {
 	file: {
@@ -31,7 +43,8 @@ export interface ExportModal {
 export interface GlobalState {
 	fullscreen: boolean,
 	exportModal: ExportModal,
-	selectedAlgorithm: Algorithms,
+	algorithms: Algorithms,
+	selectedAlgorithm: number,
 	backendState: FileState | undefined,
 	visualizationMode: VISUALIZATION_MODE
 }
@@ -42,7 +55,61 @@ const initialState: GlobalState = {
 		shown: false,
 		convert: true
 	},
-	selectedAlgorithm: Algorithms.NONE,
+	algorithms: [
+		{
+			name: "Voxel Downsampling",
+			category: AlgorithmCategory.SAMPLING,
+			apiPath: "/algorithms/voxel-downsampling",
+			parameters: [
+				{
+					placeholder: "Voxel size",
+					apiKey: "voxelSize"
+				}
+			]
+		},
+		{
+			name: "Poisson Sampling",
+			category: AlgorithmCategory.SAMPLING,
+			apiPath: "/algorithms/poisson-sampling",
+			parameters: [
+				{
+					placeholder: "Number of points",
+					apiKey: "numberOfPoints"
+				}
+			]
+		},
+		{
+			name: "Statistical Outlier Removal",
+			category: AlgorithmCategory.DENOISE,
+			apiPath: "/algorithms/statistical-outlier-removal",
+			parameters: [
+				{
+					placeholder: "Number of neighbors",
+					apiKey: "numberOfNeighbors"
+				},
+				{
+					placeholder: "STD ratio",
+					apiKey: "stdRatio"
+				}
+			]
+		},
+		{
+			name: "Radius Outlier Removal",
+			category: AlgorithmCategory.DENOISE,
+			apiPath: "/algorithms/radius-outlier-removal",
+			parameters: [
+				{
+					placeholder: "Number of points",
+					apiKey: "numberOfPoints"
+				},
+				{
+					placeholder: "Radius",
+					apiKey: "radius"
+				}
+			]
+		}
+	],
+	selectedAlgorithm: -1,
 	backendState: undefined,
 	visualizationMode: VISUALIZATION_MODE.POINT_CLOUD
 }
@@ -65,7 +132,7 @@ export const globalSlice = createSlice({
 		hideExportModal: (state) => {
 			state.exportModal.shown = false;
 		},
-		setSelectedAlgorithm: (state, action: PayloadAction<Algorithms>) => {
+		setSelectedAlgorithm: (state, action: PayloadAction<number>) => {
 			state.selectedAlgorithm = action.payload;
 		},
 		setBackendState: (state, action: PayloadAction<FileState>) => {

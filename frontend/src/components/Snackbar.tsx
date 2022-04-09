@@ -1,6 +1,6 @@
 import {toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {ReactText} from "react";
+import {ReactNode, ReactText} from "react";
 
 export enum SnackTypes {
 	info,
@@ -14,14 +14,14 @@ export enum SnackTypes {
 const toasts = [toast.info, toast.warn, toast.error, toast.success, toast.loading];
 
 export default function createSnackbar(
-	msg: String,
+	msg: string | ReactNode,
 	type: SnackTypes,
 	autoClose: number | false = 5000,
 	toastId?: string
 ): ReactText {
 	return toasts[type](msg, {
 		toastId: toastId,
-		position: "top-right",
+		position: "bottom-left",
 		autoClose: autoClose,
 		hideProgressBar: false,
 		closeOnClick: true,
