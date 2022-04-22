@@ -9,11 +9,7 @@ export const useFileReader = (uploadedFile: UploadFile): string | undefined => {
 
 	useEffect(() => {
 		if (uploadedFile === undefined)
-			return
-		if (!config.supportedFileExtensionsForVisualization.includes(uploadedFile.name.split(".").pop()!)) {
-			alert("Unsupported file type.");  // TODO
-			return
-		}
+			return;
 		const reader: FileReader = new FileReader();
 		reader.onload = () => {
 			// console.log(sizeOf({filename: file.name, type: file.type, content: reader.result}) / 1000_000, "MB");

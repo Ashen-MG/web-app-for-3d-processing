@@ -14,6 +14,7 @@ import endpoints.algorithms.remove_outliers.radius
 import endpoints.algorithms.poisson_sampling
 
 from flask import Flask, send_file, request, url_for, redirect
+from flask import json
 from flask_cors import CORS
 
 #from flask_jwt_extended import create_access_token
@@ -31,6 +32,22 @@ CORS(app, resources={ r'/*': {'origins': [
 
 # Load config
 app.config.from_pyfile("config.py")
+
+from werkzeug.exceptions import HTTPException
+
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+	"""Return JSON instead of HTML for HTTP errors."""
+	# start with the correct headers and status code from the error
+	response = e.get_response()
+	# replace the body with JSON
+	response.data = json.dumps({
+			"code": e.code,
+			"name": e.name,
+			"description": e.description,
+	})
+	response.content_type = "application/json"
+	return response
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 # socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")

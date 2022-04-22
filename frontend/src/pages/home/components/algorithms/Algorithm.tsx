@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import {useMutation} from "react-query";
 import {apiApplyAlgorithm} from "app/adapters";
 import {useEffect, useState} from "react";
-import {FileState, setBackendState} from "app/context/globalSlice";
+import {BackendState, setBackendState} from "app/context/globalSlice";
 import {useDispatch} from "react-redux";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
@@ -14,7 +14,7 @@ import {Algorithm as AlgorithmProps} from "app/context/globalSlice";
 export const Algorithm = (props: AlgorithmProps) => {
 
 	const dispatch = useDispatch();
-	const backendState: FileState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+	const backendState: BackendState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 
 	const [parameters, _setParameters] = useState<string[]>(Array(props.parameters.length).fill(""));
 
@@ -51,7 +51,7 @@ export const Algorithm = (props: AlgorithmProps) => {
 				token: backendState!.token,
 				version: backendState!.version,
 				highestVersion: backendState!.highestVersion,
-				fileExtension: backendState!.file.extension,
+				fileExtension: backendState!.fileExtension,
 			},
 			apiPath: props.apiPath,
 			algorithmParameters: Object.fromEntries(apiAlgParams)
@@ -76,6 +76,14 @@ export const Algorithm = (props: AlgorithmProps) => {
 					value={parameters[i]}
 					onChange={(e) => setParameters(e.currentTarget.value, i)}
 				/>
+				{parameter.range !== undefined &&
+            <Form.Range
+                min={parameter.range.min}
+                max={parameter.range.max}
+                step={parameter.range.step}
+                value={parameters[i]} onChange={(e) => setParameters(e.currentTarget.value, i)}
+            />
+				}
 			</FloatingLabel>
 		))}
 		<button

@@ -22,10 +22,7 @@ class StatisticalOutlierRemovalView(SwaggerView):
 		                          numberOfNeighbors=numberOfNeighbors, stdRatio=stdRatio)
 
 		return {
-			"file": {
-				"url": url_for("static", filename=f"{app.config['UPLOADS_FOLDER']}/{token}/{nextVersionFileName}"),
-				"extension": fileExtension
-			},
+			"fileExtension": fileExtension,
 			"token": token,
 			"version": nextVersion,
 			"highestVersion": nextVersion

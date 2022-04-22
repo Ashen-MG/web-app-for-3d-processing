@@ -5,7 +5,7 @@ import {Algorithms} from "app/context/globalSlice";
 import {Algorithm} from "../algorithms/Algorithm";
 
 /** Sidebar algorithm and its parameters control panel. */
-export const SidebarControlPanel = () => {
+export const SideControlPanel = () => {
 
 	const algorithms: Algorithms = useAppSelector((state: RootState) => state.global.algorithms);
 	const selectedAlgorithmIndex: number = useAppSelector((state: RootState) => state.global.selectedAlgorithm);

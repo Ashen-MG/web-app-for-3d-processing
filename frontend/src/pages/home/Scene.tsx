@@ -32,11 +32,13 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 		<div className={sceneStyles.container}>
 			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
-				<Canvas style={{width: "100%", height: "100%"}} onCreated={state => state.gl.setClearColor("#0a0a0a")}>
+				<Canvas
+					style={{width: "100%", height: "100%"}}
+					onCreated={state => state.gl.setClearColor("#0a0a0a")}
+				>
 					<Provider store={store}>
-						{uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) &&
-							<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
-						}
+						{/* uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) */}
+						<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>
 						{/*
 						<ambientLight intensity={0.5} />
 						<Environment

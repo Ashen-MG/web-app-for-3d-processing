@@ -14,12 +14,17 @@ import {XYZLoader} from "three/examples/jsm/loaders/XYZLoader";  // supports xyz
 import {PCDLoader} from "three/examples/jsm/loaders/PCDLoader";
 import {RootState} from "app/store";
 import {useAppSelector} from "app/hooks";
-import {FileState, VISUALIZATION_MODE} from "app/context/globalSlice";
+import {BackendState, VISUALIZATION_MODE} from "app/context/globalSlice";
 import {createApiURI} from "app/helpers/global";
 import * as THREE from "three";
-import {OrbitControls, PerspectiveCamera, useMatcapTexture} from "@react-three/drei";
+import {OrbitControls, Bounds, useMatcapTexture} from "@react-three/drei";
+import {getStaticURI} from "../../../../app/adapters";
 
 const loaders = {ply: PLYLoader, xyz: XYZLoader, xyzrgb: XYZLoader, pcd: PCDLoader}
+
+interface InitialFileData {
+	fileData: string | undefined
+}
 
 interface FileData {
 	fileData: string
@@ -34,24 +39,27 @@ interface FileExtension {
  * @param fileData Raw data from the point cloud file.
  * @param fileExtension
  */
-export const Model = ({fileData, fileExtension}: FileData & FileExtension) => {
+export const Model = ({fileData, fileExtension}: InitialFileData & FileExtension) => {
 
-	const backendState: FileState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+	const backendState: BackendState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 
-	const [_fileData, setFileData] = useState<string>(fileData);
+	const [_fileData, setFileData] = useState<string>();
 	const [_fileExtension, setFileExtension] = useState<string>(fileExtension);
 
 	useEffect(() => {
+		if (fileData === undefined) return;
 		setFileData(fileData);
 		setFileExtension(fileExtension);
 	}, [fileData, fileExtension]);
 	
 	useEffect(() => {
 		if (backendState === undefined) return;
-		setFileData(createApiURI(backendState.file.url));
-		setFileExtension(backendState.file.extension);
+		console.log(backendState);
+		setFileData(createApiURI(getStaticURI(backendState)));
+		setFileExtension(backendState.fileExtension);
 	}, [backendState]);
 
+	if (!_fileData) return <></>
 	if (_fileExtension === "ply")        return <ModelPLY fileData={_fileData} />
 	else if (_fileExtension === "xyz" || _fileExtension === "xyzrgb")   return <ModelXYZ fileData={_fileData} />
 	else if (_fileExtension === "pcd")   return <ModelPCD fileData={_fileData} />
@@ -172,19 +180,23 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 
 	const { camera, gl } = useThree();
 
+	// https://codesandbox.io/s/bounds-and-makedefault-rz2g0?file=/src/App.js:518-548
+
 	return <>
-		<group dispose={null}>
-			{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
-				?
-				<points geometry={geometry} material={material}/>
-				:
-				<mesh geometry={geometry} material={meshMatcam} castShadow receiveShadow onClick={() => {
-				// just testing
-				// camera.zoom += .5;
-				// camera.updateProjectionMatrix();
-			}}/>
-			}
-		</group>
-		<OrbitControls target={vector} />
+		<Bounds fit clip margin={1.4}>
+			<group dispose={null}>
+				{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
+					?
+					<points geometry={geometry} material={material}/>
+					:
+					<mesh geometry={geometry} material={meshMatcam} position={[0, 0, 0]} onClick={() => {
+					// just testing
+					// camera.zoom = 2;
+					// camera.updateProjectionMatrix();
+				}}/>
+				}
+			</group>
+		</Bounds>
+		<OrbitControls target={vector} makeDefault />
 	</>
 }

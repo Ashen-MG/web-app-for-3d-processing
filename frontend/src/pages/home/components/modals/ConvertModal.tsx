@@ -131,7 +131,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 				token: backendState!.token,
 				version: backendState!.version,
 				highestVersion: backendState!.highestVersion,
-				fileExtension: backendState!.file.extension,
+				fileExtension: backendState!.fileExtension,
 				convertTypes: selectedConversionOptions.map((convertType) => convertType.value)
 			});
 		}
@@ -141,7 +141,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 		{exportModal.convert &&
         <input type="file"
                onChange={handleFileUpload}
-               accept={config.acceptedFileExtensions}
+               accept={config.acceptedFileExtensionsForConversionOnly}
         />
 		}
 		<Select

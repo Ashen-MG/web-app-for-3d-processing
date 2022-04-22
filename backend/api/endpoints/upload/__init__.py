@@ -19,10 +19,7 @@ class UploadView(SwaggerView):
 		fileName, fileExtension = file.save(randomDirName, version=1)
 
 		return {
-			"file": {
-				"url": url_for("static", filename=f"{app.config['UPLOADS_FOLDER']}/{randomDirName}/{fileName}"),
-				"extension": fileExtension
-			},
+			"fileExtension": fileExtension,
 			"token": randomDirName,
 			"version": 1,
 			"highestVersion": 1

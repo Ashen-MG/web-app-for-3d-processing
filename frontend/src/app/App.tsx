@@ -1,6 +1,6 @@
 import {Scene} from "pages/home/Scene";
 import {TopControlPanel} from "pages/home/components/panels/TopControlPanel";
-import {SidebarControlPanel} from "pages/home/components/panels/SidebarControlPanel";
+import {SideControlPanel} from "pages/home/components/panels/SidebarControlPanel";
 import {ConvertModal} from "pages/home/components/modals/ConvertModal";
 import {FullScreen, useFullScreenHandle} from "react-full-screen";
 import {RootState} from "./store";
@@ -22,7 +22,6 @@ export interface UploadFileProps {
 }
 
 export const App = () => {
-
   const dispatch = useDispatch();
   const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
 
@@ -45,7 +44,7 @@ export const App = () => {
       <TopControlPanel uploadedFile={uploadedFile} setUploadedFile={setUploadedFile} />
       <div className="d-flex">
         <Scene uploadedFile={uploadedFile} />
-        <SidebarControlPanel />
+        <SideControlPanel />
       </div>
       <ConvertModal uploadedFile={uploadedFile} />
       <ToastContainer limit={5} />

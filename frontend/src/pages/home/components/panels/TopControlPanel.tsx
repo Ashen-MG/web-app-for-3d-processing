@@ -6,10 +6,9 @@ import Switch from "react-bootstrap/Switch";
 import styles from "./styles/navbar.module.scss";
 import {useDispatch} from "react-redux";
 import {
-	Algorithm,
 	AlgorithmCategory,
 	Algorithms,
-	FileState,
+	BackendState,
 	setBackendState,
 	setFullscreen,
 	setSelectedAlgorithm,
@@ -46,7 +45,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
 	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
-	const backendState = useAppSelector((state: RootState) => state.global.backendState);
+	const backendState: BackendState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 	const algorithms: Algorithms = useAppSelector((state: RootState) => state.global.algorithms);
 
 	const inputFile = useRef<HTMLInputElement | null>(null);
@@ -81,27 +80,32 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		dispatch(showExportModal());
 	}
 
+	const handleLoadClick = () => {
+
+	}
+
+	const handleSaveClick = () => {
+
+	}
+
 	const handlePrevClick = () => {
-		const newBackendState: FileState = JSON.parse(JSON.stringify(backendState!));
+		const newBackendState: BackendState = JSON.parse(JSON.stringify(backendState!));
 		newBackendState.version--;
-		newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
-		console.log(newBackendState);
+		// newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
 		dispatch(setBackendState(newBackendState));
 	}
 
 	const handleNextClick = () => {
-		const newBackendState: FileState = JSON.parse(JSON.stringify(backendState!));
+		const newBackendState: BackendState = JSON.parse(JSON.stringify(backendState!));
 		newBackendState.version++;
-		newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
-		console.log(newBackendState);
+		// newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
 		dispatch(setBackendState(newBackendState));
 	}
 
 	const handleResetClick = () => {
-		const newBackendState: FileState = JSON.parse(JSON.stringify(backendState!));
+		const newBackendState: BackendState = JSON.parse(JSON.stringify(backendState!));
 		newBackendState.version = 1;
-		newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
-		console.log(newBackendState);
+		// newBackendState.file.url = `/static/uploads/${newBackendState.token}/v${newBackendState.version}.${newBackendState.file.extension}`;
 		dispatch(setBackendState(newBackendState));
 	}
 
@@ -121,7 +125,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				  </Nav.Item>
 				  <input type="file"
 				         onChange={handleFileUpload}
-				         accept={config.acceptedFileExtensions}
+				         accept={config.acceptedFileExtensionsForVisualization}
 				         ref={inputFile}
 				         hidden
 				  />
@@ -142,7 +146,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={handleExportClick} disabled={backendState?.file === undefined}>Export</Nav.Link>
+					  <Nav.Link onClick={handleExportClick} disabled={backendState === undefined}>Export</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Select
@@ -153,6 +157,20 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 						  }}
 					  />
 				  </Nav.Item>
+					<Nav.Item as="li">
+						{backendState === undefined
+							? <Nav.Link disabled>Save</Nav.Link>
+							: <Nav.Link
+									href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify({backendState}))}`}
+									download={`3d_model_v${backendState!.version}.json`}
+								>
+									Save
+								</Nav.Link>
+						}
+					</Nav.Item>
+					<Nav.Item as="li">
+						<Nav.Link onClick={handleLoadClick} disabled={backendState === undefined}>Load</Nav.Link>
+					</Nav.Item>
 			  </Nav>
 			  <Nav className="me-3 align-items-center" as="ul">
 				  {/* TODO: functionality + icons */}

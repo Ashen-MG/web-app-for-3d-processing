@@ -1,9 +1,19 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {FormControlProps} from "react-bootstrap/FormControl";
 
-// TODO: range props
+export interface AlgorithmParameterRange {
+	min: number,
+	max: number,
+	step: number
+}
+
+/**
+ * TODO: Why string input field is enough
+ * Extend type of available input fields here.
+ * */
 export interface AlgorithmParameter extends FormControlProps {
-	apiKey: string  // TODO: maybe type in case different than number will come (e.g. File, string)
+	apiKey: string,
+	range?: AlgorithmParameterRange
 }
 
 export enum AlgorithmCategory {
@@ -20,12 +30,9 @@ export interface Algorithm {
 
 export type Algorithms = Algorithm[];
 
-export interface FileState {
-	file: {
-		url: string,
-		extension: string
-	}
+export interface BackendState {
 	token: string,
+	fileExtension: string,
 	version: number,
 	highestVersion: number
 }
@@ -45,8 +52,26 @@ export interface GlobalState {
 	exportModal: ExportModal,
 	algorithms: Algorithms,
 	selectedAlgorithm: number,
-	backendState: FileState | undefined,
+	backendState: BackendState | undefined,
 	visualizationMode: VISUALIZATION_MODE
+}
+
+class LocalStorage {
+	public static getVisualizationMode = (): VISUALIZATION_MODE => {
+		const visualizationMode: string | null = localStorage.getItem("visualizationMode");
+		return visualizationMode === null ? VISUALIZATION_MODE.POINT_CLOUD : JSON.parse(visualizationMode);
+	}
+
+	public static setVisualizationMode = (visualizationMode: VISUALIZATION_MODE) =>
+		localStorage.setItem("visualizationMode", JSON.stringify(visualizationMode));
+
+	public static getBackendState = (): BackendState | undefined => {
+		const backendState: string | null = localStorage.getItem("backendState");
+		return backendState === null ? undefined : JSON.parse(backendState);
+	}
+
+	public static setBackendState = (backendState: BackendState) =>
+		localStorage.setItem("backendState", JSON.stringify(backendState));
 }
 
 const initialState: GlobalState = {
@@ -63,7 +88,12 @@ const initialState: GlobalState = {
 			parameters: [
 				{
 					placeholder: "Voxel size",
-					apiKey: "voxelSize"
+					apiKey: "voxelSize",
+					range: {
+						min: 0.01,
+						max: 10,
+						step: 0.01
+					}
 				}
 			]
 		},
@@ -110,8 +140,8 @@ const initialState: GlobalState = {
 		}
 	],
 	selectedAlgorithm: -1,
-	backendState: undefined,
-	visualizationMode: VISUALIZATION_MODE.POINT_CLOUD
+	backendState: LocalStorage.getBackendState(),
+	visualizationMode: LocalStorage.getVisualizationMode()
 }
 
 export const globalSlice = createSlice({
@@ -135,10 +165,12 @@ export const globalSlice = createSlice({
 		setSelectedAlgorithm: (state, action: PayloadAction<number>) => {
 			state.selectedAlgorithm = action.payload;
 		},
-		setBackendState: (state, action: PayloadAction<FileState>) => {
+		setBackendState: (state, action: PayloadAction<BackendState>) => {
+			LocalStorage.setBackendState(action.payload);
 			state.backendState = action.payload;
 		},
 		setVisualizationMode: (state, action: PayloadAction<VISUALIZATION_MODE>) => {
+			LocalStorage.setVisualizationMode(action.payload);
 			state.visualizationMode = action.payload;
 		},
 	}
