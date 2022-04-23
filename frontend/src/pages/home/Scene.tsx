@@ -33,7 +33,7 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
 				<Canvas
-					style={{width: "100%", height: "100%"}}
+					style={{width: "100%", height: "100%", paddingRight: "280px"}}
 					onCreated={state => state.gl.setClearColor("#0a0a0a")}
 				>
 					<Provider store={store}>

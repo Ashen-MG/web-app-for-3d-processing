@@ -26,7 +26,8 @@ import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
 import Select from "react-select";
-import {YesNoModal} from "../../../../components/YesNoModal";
+import {YesNoModal} from "components/YesNoModal";
+import {ArrowLeft, ArrowRight, ArrowClockwise, CloudArrowUp, CloudArrowDown, CloudPlus, Save2, CaretDownFill} from "react-bootstrap-icons";
 
 interface VisualizationModeOptions {
 	value: VISUALIZATION_MODE,
@@ -51,7 +52,6 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 
 	const uploadInputFile = useRef<HTMLInputElement | null>(null);
 	const openUploadFileDialog = () => {
-
 		uploadInputFile.current?.click();
 	}
 
@@ -127,11 +127,13 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 	const renderedCategories = new Set<AlgorithmCategory>();
 
 	return (
-	  <Navbar bg="dark" variant="dark" className={`${styles.navbar}`}>
+	  <Navbar variant="dark" className={`${styles.navbar}`}>
 		  <Container fluid={true}>
 			  <Nav className="me-auto ms-3" as="ul">
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={() => setShowYesNoModal(true)}>Upload</Nav.Link>
+					  <Nav.Link onClick={() => setShowYesNoModal(true)}>
+							<div className="d-flex align-items-center"><CloudArrowUp size={25} color="white" /> Upload</div>
+						</Nav.Link>
 						<input type="file"
 									 onChange={handleFileUpload}
 									 accept={config.acceptedFileExtensionsForVisualization}
@@ -145,7 +147,7 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 												handleYes={openUploadFileDialog}
 						/>
 				  </Nav.Item>
-				  <NavDropdown title="Algorithms" as="li">
+				  <NavDropdown title={<div className="d-flex align-items-center"><CaretDownFill size={20} color="white" /> Algorithms</div>} as="li">
 						{algorithms.map((algorithm, i) => {
 							const categoryIsRendered: boolean = renderedCategories.has(algorithm.category);
 							if (!categoryIsRendered)
@@ -159,34 +161,29 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 						})}
 				  </NavDropdown>
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={handleConvertClick}>Convert</Nav.Link>
+					  <Nav.Link onClick={handleConvertClick}>
+							<div className="d-flex align-items-center"><CloudArrowDown size={25} color="white" /> Convert</div>
+						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={handleExportClick} disabled={backendState === undefined}>Export</Nav.Link>
-				  </Nav.Item>
-				  <Nav.Item as="li">
-					  <Select
-						  options={visualizationModeOptions}
-						  defaultValue={visualizationModeOptions.find(v => v.value === visualizationMode)}
-						  onChange={(selectedOption) => {
-						  	if (selectedOption) dispatch(setVisualizationMode(selectedOption.value))
-						  }}
-					  />
+					  <Nav.Link onClick={handleExportClick} disabled={backendState === undefined}>
+							<div className="d-flex align-items-center"><CloudArrowDown size={25} color="white" /> Export</div>
+						</Nav.Link>
 				  </Nav.Item>
 					<Nav.Item as="li">
 						{backendState === undefined
-							? <Nav.Link disabled>Save</Nav.Link>
+							? <Nav.Link disabled><Save2 /> Save</Nav.Link>
 							: <Nav.Link
 									href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(backendState))}`}
 									download={`3d_model_v${backendState!.version}.json`}
 								>
-									Save
+								<div className="d-flex align-items-center"><Save2 /> Save</div>
 								</Nav.Link>
 						}
 					</Nav.Item>
 					<Nav.Item as="li">
-						<Nav.Link onClick={openLoadJsonFileDialog} disabled={backendState === undefined}>
-							Load
+						<Nav.Link onClick={openLoadJsonFileDialog}>
+							<div className="d-flex align-items-center"><CloudPlus /> Load</div>
 						</Nav.Link>
 						<input type="file"
 									 onChange={handleJsonFileUpload}
@@ -195,21 +192,33 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 									 hidden
 						/>
 					</Nav.Item>
+					<Nav.Item as="li">
+						<Select
+							options={visualizationModeOptions}
+							defaultValue={visualizationModeOptions.find(v => v.value === visualizationMode)}
+							onChange={(selectedOption) => {
+								if (selectedOption) dispatch(setVisualizationMode(selectedOption.value))
+							}}
+						/>
+					</Nav.Item>
 			  </Nav>
 			  <Nav className="me-3 align-items-center" as="ul">
-				  {/* TODO: icons */}
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={handlePrevClick} disabled={backendState === undefined || backendState.version === 1}>prev</Nav.Link>
-				  </Nav.Item>
-				  <Nav.Item as="li">
-					  <Nav.Link onClick={handleNextClick} disabled={backendState === undefined || backendState.version === backendState.highestVersion}>
-							next
+					  <Nav.Link onClick={handlePrevClick} disabled={backendState === undefined || backendState.version === 1}>
+							<ArrowLeft size={20} color="white" />
 						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={handleResetClick} disabled={backendState === undefined || backendState.version === 1}>reset</Nav.Link>
+					  <Nav.Link onClick={handleNextClick} disabled={backendState === undefined || backendState.version === backendState.highestVersion}>
+							<ArrowRight size={20} color="white" />
+						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
+					  <Nav.Link onClick={handleResetClick} disabled={backendState === undefined || backendState.version === 1}>
+							<ArrowClockwise size={20} color="white" />
+						</Nav.Link>
+				  </Nav.Item>
+				  <Nav.Item as="li" className="ms-3">
 					  <Switch
 						  checked={fullscreenOn}
 						  onChange={(e) =>

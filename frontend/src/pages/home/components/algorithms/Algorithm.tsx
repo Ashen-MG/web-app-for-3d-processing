@@ -10,6 +10,7 @@ import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
 import {Algorithm as AlgorithmProps} from "app/context/globalSlice";
+import {Play} from "react-bootstrap-icons"
 
 export const Algorithm = (props: AlgorithmProps) => {
 
@@ -90,7 +91,8 @@ export const Algorithm = (props: AlgorithmProps) => {
 			className="btn btn-info"
 			onClick={applyAlgorithm}
 		>
-			Run
+			<div className="d-flex"><Play size={25}/> Run</div>
 		</button>
+		<hr style={{width: "12%"}}/>
 	</>)
 }
