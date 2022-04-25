@@ -182,7 +182,7 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 	// https://codesandbox.io/s/bounds-and-makedefault-rz2g0?file=/src/App.js:518-548
 
 	return <>
-		<Bounds fit clip margin={1.4}>
+		<Bounds fit clip>
 			<group dispose={null}>
 				{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
 					?

@@ -1,7 +1,9 @@
 $navbarHeight: 55px;
 $sidebarWidth: 280px;
+$textColor: #ededed;
 
 :export {
   navbarHeight: $navbarHeight;
   sidebarWidth: $sidebarWidth;
+  textColor: $textColor;
 }

@@ -25,15 +25,18 @@ import {UploadFileProps} from "app/App";
 import {useMutation} from "react-query";
 import {apiUpload} from "app/adapters";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
-import Select from "react-select";
 import {YesNoModal} from "components/YesNoModal";
-import {ArrowLeft, ArrowRight, ArrowClockwise, CloudArrowUp, CloudArrowDown, CloudPlus, Save2, CaretDownFill} from "react-bootstrap-icons";
-
-interface VisualizationModeOptions {
-	value: VISUALIZATION_MODE,
-	label: string
-}
-
+import defaultStyles from "app/styles/defaults.module.scss";
+import {
+	ArrowClockwise,
+	ArrowLeft,
+	ArrowRight,
+	CaretDownFill,
+	Check,
+	FileEarmarkZip,
+	FiletypeJson,
+	Folder2Open
+} from "react-bootstrap-icons";
 
 /** Top control panel = navigation menu.
  *  Functionality:
@@ -42,7 +45,7 @@ interface VisualizationModeOptions {
  *    - convert
  *    - switch fullscreen mode.
  * */
-export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps) => {
+export const TopControlPanel = ({setUploadedFile}: UploadFileProps) => {
 
 	const dispatch = useDispatch();
 	const fullscreenOn: boolean = useAppSelector((state: RootState) => state.global.fullscreen);
@@ -119,11 +122,6 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		dispatch(setBackendState(newBackendState));
 	}
 
-	const visualizationModeOptions: VisualizationModeOptions[] = [
-		{value: VISUALIZATION_MODE.POINT_CLOUD, label: "point cloud"},
-		{value: VISUALIZATION_MODE.MESH, label: "mesh"}
-	]
-
 	const renderedCategories = new Set<AlgorithmCategory>();
 
 	return (
@@ -131,8 +129,11 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 		  <Container fluid={true}>
 			  <Nav className="me-auto ms-3" as="ul">
 				  <Nav.Item as="li">
-					  <Nav.Link onClick={() => setShowYesNoModal(true)}>
-							<div className="d-flex align-items-center"><CloudArrowUp size={25} color="white" /> Upload</div>
+					  <Nav.Link onClick={() => backendState === undefined ? openUploadFileDialog() : setShowYesNoModal(true)}>
+							<div className="d-flex align-items-center">
+								<Folder2Open size={22} color={defaultStyles.textColor} className="me-1"/>
+								Upload
+							</div>
 						</Nav.Link>
 						<input type="file"
 									 onChange={handleFileUpload}
@@ -142,12 +143,18 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 						/>
 						<YesNoModal show={showYesNoModal}
 												setShow={setShowYesNoModal}
+												headline="Do you wish to continue?"
 												text="Uploading new object will overwrite your current state of work. Make sure you save it before upload a new model.
 												Do you wish to continue?"
 												handleYes={openUploadFileDialog}
 						/>
 				  </Nav.Item>
-				  <NavDropdown title={<div className="d-flex align-items-center"><CaretDownFill size={20} color="white" /> Algorithms</div>} as="li">
+				  <NavDropdown title={
+						<div className="d-flex align-items-center">
+							<CaretDownFill size={18} color={defaultStyles.textColor} className="me-1" />
+							Algorithms
+						</div>
+					} as="li">
 						{algorithms.map((algorithm, i) => {
 							const categoryIsRendered: boolean = renderedCategories.has(algorithm.category);
 							if (!categoryIsRendered)
@@ -162,28 +169,45 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 				  </NavDropdown>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleConvertClick}>
-							<div className="d-flex align-items-center"><CloudArrowDown size={25} color="white" /> Convert</div>
+							<div className="d-flex align-items-center">
+								<FileEarmarkZip size={21} color={defaultStyles.textColor} className="me-1" />
+								Convert
+							</div>
 						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleExportClick} disabled={backendState === undefined}>
-							<div className="d-flex align-items-center"><CloudArrowDown size={25} color="white" /> Export</div>
+							<div className="d-flex align-items-center">
+								<FileEarmarkZip size={21} color={defaultStyles.textColor} className="me-1" />
+								Export
+							</div>
 						</Nav.Link>
 				  </Nav.Item>
 					<Nav.Item as="li">
 						{backendState === undefined
-							? <Nav.Link disabled><Save2 /> Save</Nav.Link>
+							? <Nav.Link disabled>
+									<div className="d-flex align-items-center">
+										<FiletypeJson size={21} color={defaultStyles.textColor} className="me-1" />
+										Save
+									</div>
+								</Nav.Link>
 							: <Nav.Link
 									href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(backendState))}`}
 									download={`3d_model_v${backendState!.version}.json`}
 								>
-								<div className="d-flex align-items-center"><Save2 /> Save</div>
+								<div className="d-flex align-items-center">
+									<FiletypeJson size={21} color={defaultStyles.textColor} className="me-1" />
+									Save
+								</div>
 								</Nav.Link>
 						}
 					</Nav.Item>
 					<Nav.Item as="li">
 						<Nav.Link onClick={openLoadJsonFileDialog}>
-							<div className="d-flex align-items-center"><CloudPlus /> Load</div>
+							<div className="d-flex align-items-center">
+								<Folder2Open size={22} color={defaultStyles.textColor} className="me-1"/>
+								Load
+							</div>
 						</Nav.Link>
 						<input type="file"
 									 onChange={handleJsonFileUpload}
@@ -192,30 +216,40 @@ export const TopControlPanel = ({uploadedFile, setUploadedFile}: UploadFileProps
 									 hidden
 						/>
 					</Nav.Item>
-					<Nav.Item as="li">
-						<Select
-							options={visualizationModeOptions}
-							defaultValue={visualizationModeOptions.find(v => v.value === visualizationMode)}
-							onChange={(selectedOption) => {
-								if (selectedOption) dispatch(setVisualizationMode(selectedOption.value))
-							}}
-						/>
-					</Nav.Item>
+					<NavDropdown title={
+						<div className="d-flex align-items-center">
+							<CaretDownFill size={18} color={defaultStyles.textColor} className="me-1" />
+							Visualization
+						</div>
+					} as="li">
+						<NavDropdown.Item onClick={() => dispatch(setVisualizationMode(VISUALIZATION_MODE.POINT_CLOUD))}>
+							<div className="d-flex align-items-center justify-content-between">
+								Point cloud
+								{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD && <Check size={24} />}
+							</div>
+						</NavDropdown.Item>
+						<NavDropdown.Item onClick={() => dispatch(setVisualizationMode(VISUALIZATION_MODE.MESH))}>
+							<div className="d-flex align-items-center justify-content-between">
+								Mesh
+								{visualizationMode === VISUALIZATION_MODE.MESH && <Check size={24} />}
+							</div>
+						</NavDropdown.Item>
+					</NavDropdown>
 			  </Nav>
 			  <Nav className="me-3 align-items-center" as="ul">
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handlePrevClick} disabled={backendState === undefined || backendState.version === 1}>
-							<ArrowLeft size={20} color="white" />
+							<ArrowLeft size={21} color={defaultStyles.textColor} />
 						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleNextClick} disabled={backendState === undefined || backendState.version === backendState.highestVersion}>
-							<ArrowRight size={20} color="white" />
+							<ArrowRight size={21} color={defaultStyles.textColor} />
 						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li">
 					  <Nav.Link onClick={handleResetClick} disabled={backendState === undefined || backendState.version === 1}>
-							<ArrowClockwise size={20} color="white" />
+							<ArrowClockwise size={21} color={defaultStyles.textColor} />
 						</Nav.Link>
 				  </Nav.Item>
 				  <Nav.Item as="li" className="ms-3">

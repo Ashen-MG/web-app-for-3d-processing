@@ -1,6 +1,6 @@
 import React, {Suspense, useEffect, useState} from "react";
 import {Canvas} from "@react-three/fiber";
-import {OrbitControls, Environment} from "@react-three/drei";
+import {OrbitControls, Environment, useProgress} from "@react-three/drei";
 import {Model} from "./components/model/Model";
 import {UploadedFileProp} from "app/App";
 import {useFileReader} from "./hooks";
@@ -30,7 +30,7 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 
 	return (<>
 		<div className={sceneStyles.container}>
-			<Suspense fallback={<div>Loading... </div>}>  {/* TODO: some better loading */}
+			<Suspense fallback={<Loader/>}>  {/* TODO: some better loading */}
 				{/* https://github.com/pmndrs/react-three-fiber/issues/304 */}
 				<Canvas
 					style={{width: "100%", height: "100%", paddingRight: "280px"}}
@@ -51,4 +51,14 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 			</Suspense>
 		</div>
 	</>)
+}
+
+const Loader = () => {
+	return (
+		<div style={{position: "absolute", width: "100%", height: "100%", color: "white", zIndex: 1}}
+								className="d-flex align-content-center justify-content-center flex-wrap"
+		>
+			Loading 3D scene...
+		</div>
+	)
 }

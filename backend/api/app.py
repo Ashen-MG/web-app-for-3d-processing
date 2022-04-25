@@ -1,10 +1,3 @@
-import base64
-import os
-import re
-import zipfile
-from typing import Dict
-from shutil import copyfile
-import random
 import endpoints.upload
 import endpoints.export
 import endpoints.convert
@@ -12,6 +5,8 @@ import endpoints.algorithms.voxel_downsampling
 import endpoints.algorithms.remove_outliers.statistical
 import endpoints.algorithms.remove_outliers.radius
 import endpoints.algorithms.poisson_sampling
+import endpoints.algorithms.poisson_surface_reconstruction
+import endpoints.algorithms.edge_extraction
 
 from flask import Flask, send_file, request, url_for, redirect
 from flask import json
@@ -98,6 +93,18 @@ app.add_url_rule(
 app.add_url_rule(
 	"/api/algorithms/poisson-sampling",
 	view_func=endpoints.algorithms.poisson_sampling.PoissonSamplingView.as_view("poisson_sampling"),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/poisson-surface-reconstruction",
+	view_func=endpoints.algorithms.poisson_surface_reconstruction.PoissonSurfaceReconstructionView.as_view("poisson_surface_reconstruction"),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/edge-extraction",
+	view_func=endpoints.algorithms.edge_extraction.EdgeExtractionView.as_view("edge_extraction"),
 	methods=["PUT"]
 )
 

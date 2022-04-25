@@ -42,8 +42,8 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 					{exportModal.convert
 						?
 							<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
-								Convert a file without the need of initial uploading and visualization.
-								This method is faster to use if you only want to convert your model.
+								Convert a file without the need for initial uploading and visualization.
+								This method is faster to use if you want to do conversion only.
 							</small>
 						:
 							<small style={{fontSize: ".5em", color: "rgba(0, 0, 0, .75)"}}>
@@ -139,10 +139,12 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 
 	return (<>
 		{exportModal.convert &&
-        <input type="file"
+        <div className="mb-3">
+						<input type="file"
                onChange={handleFileUpload}
                accept={config.acceptedFileExtensionsForConversionOnly}
-        />
+        		/>
+				</div>
 		}
 		<Select
 			className={`${styles.multiselect}`}
@@ -156,7 +158,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 			<div>
 				<button
 					onClick={handleExportClick}
-					disabled={selectedConversionOptions.length === 0 || (uploadedFile === undefined && !exportModal.convert) ||
+					disabled={selectedConversionOptions.length === 0 || (backendState === undefined && !exportModal.convert) ||
 										(convertFile === undefined && exportModal.convert)
 									 }
 					className="btn btn-primary"

@@ -1,15 +1,15 @@
 from flask import request
 from flask import current_app as app
 from flasgger import SwaggerView
-from endpoints.algorithms.poisson_sampling.algorithm import poissonSampling
+from endpoints.algorithms.poisson_surface_reconstruction.algorithm import poissonSurfaceReconstruction
 from os.path import join as joinPath
 
-class PoissonSamplingView(SwaggerView):
+class PoissonSurfaceReconstructionView(SwaggerView):
 	def put(self):
 		token = request.json["token"]
 		currentVersion = request.json["version"]
 		fileExtension = request.json["fileExtension"]
-		numberOfPoints = request.json["numberOfPoints"]
+		depth = request.json["depth"]
 
 		nextVersion = currentVersion + 1
 		nextVersionFileName = f"v{nextVersion}.{fileExtension}"
@@ -17,7 +17,9 @@ class PoissonSamplingView(SwaggerView):
 		currentFilePath = joinPath(app.root_path, "static", "uploads", token, f"v{currentVersion}.{fileExtension}")
 		outputFilePath = joinPath(app.root_path, "static", "uploads", token, nextVersionFileName)
 
-		poissonSampling(currentFilePath=currentFilePath, outputFilepath=outputFilePath, numberOfPoints=numberOfPoints)
+		kwargs = {} if depth is None else {"depth": depth}
+
+		poissonSurfaceReconstruction(currentFilePath=currentFilePath, outputFilepath=outputFilePath, **kwargs)
 
 		return {
 			"fileExtension": fileExtension,

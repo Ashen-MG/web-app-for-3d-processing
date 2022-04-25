@@ -1,0 +1,11 @@
+@use "./src/app/styles/defaults.module";
+
+.algorithmParameter {
+  color: defaults.$textColor;
+  background-color: transparent;
+
+  &:hover, &:focus, &:active {
+    color: defaults.$textColor;
+    background-color: transparent;
+  }
+}

@@ -1,4 +1,3 @@
-import styles from "../panels/styles/sidebar.module.scss";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import Form from "react-bootstrap/Form";
 import {useMutation} from "react-query";
@@ -11,6 +10,8 @@ import {RootState} from "app/store";
 import createSnackbar, {SnackTypes} from "components/Snackbar";
 import {Algorithm as AlgorithmProps} from "app/context/globalSlice";
 import {Play} from "react-bootstrap-icons"
+import sidebarStyles from "../panels/styles/sidebar.module.scss";
+import styles from "./algorithm.module.scss";
 
 export const Algorithm = (props: AlgorithmProps) => {
 
@@ -60,8 +61,8 @@ export const Algorithm = (props: AlgorithmProps) => {
 	}
 
 	return (<>
-		<header className={`${styles.sidebarHeader}`}>
-			<h2 className={`${styles.sidebarTitle}`}>{props.name}</h2>
+		<header className={`${sidebarStyles.sidebarHeader}`}>
+			<h2 className={`${sidebarStyles.sidebarTitle}`}>{props.name}</h2>
 		</header>
 		<hr />
 		{props.parameters.map((parameter, i) => (
@@ -71,7 +72,7 @@ export const Algorithm = (props: AlgorithmProps) => {
 				className="mb-3"
 			>
 				<Form.Control
-					className="algorithmParameter"
+					className={styles.algorithmParameter}
 					type="text"
 					placeholder={parameter.placeholder}
 					value={parameters[i]}

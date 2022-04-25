@@ -18,7 +18,9 @@ export interface AlgorithmParameter extends FormControlProps {
 
 export enum AlgorithmCategory {
 	DENOISE = "Denoise",
-	SAMPLING = "Sampling"
+	SAMPLING = "Sampling",
+	POINT_CLOUD_TO_MESH = "Point cloud to mesh",
+	MESH_EDGE_EXTRACTION = "Edge extraction from mesh"
 }
 
 export interface Algorithm {
@@ -104,7 +106,12 @@ const initialState: GlobalState = {
 			parameters: [
 				{
 					placeholder: "Number of points",
-					apiKey: "numberOfPoints"
+					apiKey: "numberOfPoints",
+					range: {
+						min: 1,
+						max: 100000,
+						step: 1
+					}
 				}
 			]
 		},
@@ -135,6 +142,38 @@ const initialState: GlobalState = {
 				{
 					placeholder: "Radius",
 					apiKey: "radius"
+				}
+			]
+		},
+		{
+			name: "Poisson Surface Reconstruction",
+			category: AlgorithmCategory.POINT_CLOUD_TO_MESH,
+			apiPath: "/algorithms/poisson-surface-reconstruction",
+			parameters: [
+				{
+					placeholder: "Depth",
+					apiKey: "depth",
+					range: {
+						min: 1,
+						max: 10,
+						step: 1
+					}
+				}
+			]
+		},
+		{
+			name: "Edge extraction",
+			category: AlgorithmCategory.MESH_EDGE_EXTRACTION,
+			apiPath: "/algorithms/edge-extraction",
+			parameters: [
+				{
+					placeholder: "Feature angle",
+					apiKey: "featureAngle",
+					range: {
+						min: 1,
+						max: 100,
+						step: 1
+					}
 				}
 			]
 		}

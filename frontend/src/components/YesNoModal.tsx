@@ -2,13 +2,14 @@ import React from "react";
 import {Modal} from "react-bootstrap";
 
 interface YesNoModalProps {
+	headline?: string,
 	text: string,
 	handleYes: Function,
 	show: boolean,
 	setShow: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const YesNoModal = ({show, setShow, text, handleYes}: YesNoModalProps) => {
+export const YesNoModal = ({show, setShow, headline = "", text, handleYes}: YesNoModalProps) => {
 
 	const handleClose = () => setShow(false);
 
@@ -17,9 +18,11 @@ export const YesNoModal = ({show, setShow, text, handleYes}: YesNoModalProps) =>
 			show={show}
 			onHide={handleClose}
 		>
-			<Modal.Header closeButton className="border-none" />
+			<Modal.Header closeButton className="border-none">
+				<b>{headline}</b>
+			</Modal.Header>
 			<Modal.Body>
-				<div className="text-center">
+				<div className="text-justify">
 					<span>{text}</span>
 				</div>
 			</Modal.Body>
