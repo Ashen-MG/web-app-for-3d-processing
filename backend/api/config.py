@@ -1,8 +1,7 @@
 """
-Do not import from this file!
-Config is loaded to an instance of flask application in api/app.py
-e.g. access by app.config["varName"] or in the context of a request in external file by
-importing `from flask import current_app` and accessing in the same way i.e. current_app.config["varName"].
+Config is loaded to an instance of flask application in api/app.py.
+Access by app.config["varName"] or in the context of a request in an external file by
+importing `from flask import current_app` and calling current_app.config["varName"].
 """
 
 UPLOADS_FOLDER = "uploads"

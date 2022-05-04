@@ -8,31 +8,23 @@ import endpoints.algorithms.poisson_sampling
 import endpoints.algorithms.poisson_surface_reconstruction
 import endpoints.algorithms.edge_extraction
 
-from flask import Flask, send_file, request, url_for, redirect
+from flask import Flask
 from flask import json
 from flask_cors import CORS
-
-#from flask_jwt_extended import create_access_token
-#from flask_jwt_extended import JWTManager
-from datetime import timedelta
-
-from convert import createConversions
+from werkzeug.exceptions import HTTPException
+from os import urandom
+import sys
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'sasdfdsfgd'
-CORS(app, resources={ r'/*': {'origins': [
-	'http://localhost:3000', '*'  # React
-	# React
-]}}, supports_credentials=True)
+app.config["SECRET_KEY"] = urandom(32)
 
-# Load config
+CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
+
 app.config.from_pyfile("config.py")
-
-from werkzeug.exceptions import HTTPException
 
 @app.errorhandler(HTTPException)
 def handle_exception(e):
-	"""Return JSON instead of HTML for HTTP errors."""
+	""" Return JSON instead of HTML for HTTP errors. """
 	# start with the correct headers and status code from the error
 	response = e.get_response()
 	# replace the body with JSON
@@ -43,16 +35,6 @@ def handle_exception(e):
 	})
 	response.content_type = "application/json"
 	return response
-
-app.config['CORS_HEADERS'] = 'Content-Type'
-# socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
-
-""" JWT tokens setup. """
-"""
-app.config["JWT_SECRET_KEY"] = "dev secret key"
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=72)
-jwt = JWTManager(app)
-"""
 
 app.add_url_rule(
 	"/api/upload",
@@ -108,8 +90,13 @@ app.add_url_rule(
 	methods=["PUT"]
 )
 
-# useful links
-# https://stackoverflow.com/questions/46805813/set-the-http-status-text-in-a-flask-response
-
 if __name__ == '__main__':
-	app.run(debug=True, host="localhost", port=3001)
+	mode = None
+	if len(sys.argv) > 1:
+		mode = sys.argv[1]
+		print(mode)
+	if mode is None or mode not in ["dev", "prod"]:
+		print("Invalid mode.")
+		quit(1)
+
+	app.run(debug=True if mode == "dev" else False, host="localhost", port=3001)

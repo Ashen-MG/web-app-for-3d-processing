@@ -20,7 +20,7 @@ def createConversions(filename: str, outputFilepath: str, convertTypes: list):
 			convertedFiles.append(outputFilename)
 	if len(convertedFiles) != 0:
 		createZip(f"{outputFilepath}/converted", convertedFiles)
-		# TODO: clean everything except create zip
+		# TODO: clean everything except created zip
 
 def createZip(outputZipFilename: str, convertedFiles: list):
 	zipf = zipfile.ZipFile(f"{outputZipFilename}.zip", "w", zipfile.ZIP_DEFLATED)

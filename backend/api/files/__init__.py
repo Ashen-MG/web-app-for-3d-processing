@@ -16,7 +16,9 @@ class File:
 		return "." in fileName and fileName.split(".")[-1].lower() in ALLOWED_EXTENSIONS
 
 	def save(self, dirName: str, version: int) -> (str, str):
-		""" :returns saved file name """
+		"""
+		:returns saved file name
+		"""
 		fileExtension = self.uploadedFile.filename.split(".")[-1].lower()
 		absoluteDirPath: str = self._getAbsoluteSavingPath(dirName)
 		mkdir(absoluteDirPath)

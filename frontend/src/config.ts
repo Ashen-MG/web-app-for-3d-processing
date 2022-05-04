@@ -7,12 +7,12 @@ const config = {
 	BASE_API_URL: {
 		development: "http://localhost:3001",
 		test: "http://localhost:3001",
-		production: "PRODUCTION_API_URL"  // TODO
+		production: "http://localhost:3001"  // TODO
 	}[ENV],
 	API_URL: {
 		development: "http://localhost:3001/api",
 		test: "http://localhost:3001/api",
-		production: "PRODUCTION_API_URL"  // TODO
+		production: "http://localhost:3001/api"  // TODO
 	}[ENV]
 }
 
