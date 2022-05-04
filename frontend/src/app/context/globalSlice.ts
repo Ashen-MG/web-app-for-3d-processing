@@ -7,10 +7,6 @@ export interface AlgorithmParameterRange {
 	step: number
 }
 
-/**
- * TODO: Why string input field is enough
- * Extend type of available input fields here.
- * */
 export interface AlgorithmParameter extends FormControlProps {
 	apiKey: string,
 	range?: AlgorithmParameterRange
@@ -54,6 +50,7 @@ export interface GlobalState {
 	exportModal: ExportModal,
 	algorithms: Algorithms,
 	selectedAlgorithm: number,
+	algorithmInProgress: boolean,
 	backendState: BackendState | undefined,
 	visualizationMode: VISUALIZATION_MODE
 }
@@ -82,6 +79,10 @@ const initialState: GlobalState = {
 		shown: false,
 		convert: true
 	},
+	selectedAlgorithm: -1,
+	algorithmInProgress: false,
+	backendState: LocalStorage.getBackendState(),
+	visualizationMode: LocalStorage.getVisualizationMode(),
 	algorithms: [
 		{
 			name: "Voxel Downsampling",
@@ -177,10 +178,7 @@ const initialState: GlobalState = {
 				}
 			]
 		}
-	],
-	selectedAlgorithm: -1,
-	backendState: LocalStorage.getBackendState(),
-	visualizationMode: LocalStorage.getVisualizationMode()
+	]
 }
 
 export const globalSlice = createSlice({
@@ -204,6 +202,9 @@ export const globalSlice = createSlice({
 		setSelectedAlgorithm: (state, action: PayloadAction<number>) => {
 			state.selectedAlgorithm = action.payload;
 		},
+		setAlgorithmInProgress: (state, action: PayloadAction<boolean>) => {
+			state.algorithmInProgress = action.payload;
+		},
 		setBackendState: (state, action: PayloadAction<BackendState>) => {
 			LocalStorage.setBackendState(action.payload);
 			state.backendState = action.payload;
@@ -221,6 +222,7 @@ export const {
 	showConvertModal,
 	hideExportModal,
 	setSelectedAlgorithm,
+	setAlgorithmInProgress,
 	setBackendState,
 	setVisualizationMode
 } = globalSlice.actions;

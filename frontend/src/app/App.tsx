@@ -33,8 +33,7 @@ export const App = () => {
     else                fullscreenHandler.exit();
   }, [fullscreenOn]);
 
-  // TODO: possibly move to TopControlPanel.tsx if redux states are going to work (and remove props from other components)
-  /** Original uploaded 3D model.
+  /** Uploaded 3D model (1. version).
    *  Unfortunately, we can't use Redux to store File since it isn't serializable.
    */
   const [uploadedFile, setUploadedFile] = useState<UploadFile>();

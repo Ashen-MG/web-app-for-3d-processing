@@ -10,7 +10,7 @@ export enum SnackTypes {
 	loading
 }
 
-/** Supported toast refs by types. Order must be the same as in `SnackTypes`. */
+/** Supported toast refs by type. The order must be the same as in `SnackTypes`. */
 const toasts = [toast.info, toast.warn, toast.error, toast.success, toast.loading];
 
 export default function createSnackbar(

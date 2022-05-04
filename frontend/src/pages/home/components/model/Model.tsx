@@ -2,8 +2,9 @@ import React, {useEffect, useState} from "react";
 import {
 	BufferGeometry,
 	Material,
-	MeshBasicMaterial, MeshMatcapMaterial, MeshPhongMaterial, MeshPhysicalMaterial,
-	MeshStandardMaterial,
+	MeshBasicMaterial,
+	MeshMatcapMaterial,
+	MeshPhongMaterial,
 	Points,
 	PointsMaterial,
 	Vector3
@@ -16,11 +17,8 @@ import {RootState} from "app/store";
 import {useAppSelector} from "app/hooks";
 import {BackendState, VISUALIZATION_MODE} from "app/context/globalSlice";
 import {createApiURI} from "app/helpers/global";
-import * as THREE from "three";
-import {OrbitControls, Bounds, useMatcapTexture} from "@react-three/drei";
-import {getStaticURI} from "../../../../app/adapters";
-
-const loaders = {ply: PLYLoader, xyz: XYZLoader, xyzrgb: XYZLoader, pcd: PCDLoader}
+import {OrbitControls, Bounds, useMatcapTexture, useBounds} from "@react-three/drei";
+import {getStaticURI} from "app/adapters";
 
 interface InitialFileData {
 	fileData: string | undefined
@@ -79,9 +77,7 @@ const ModelXYZ = ({fileData}: FileData) => {
 
 const ModelPCD = ({fileData}: FileData) => {
 	const points: Points<BufferGeometry, Material | Material[]> = useLoader(PCDLoader, fileData);
-	const geometry: BufferGeometry = points.geometry;
-	const material: Material = points.material as Material;  // TODO: can also be Material[]
-	return <Geometry geometry={geometry} material={material} />
+	return <></>
 }
 
 interface GeometryProps {
@@ -170,7 +166,7 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 		matcap: matcap
 	});
 
-	const meshPhongMaterail = new MeshPhongMaterial({
+	const meshPhongMaterial = new MeshPhongMaterial({
 		color: "white",
 		polygonOffset: true,
 		polygonOffsetFactor: 1, // positive value pushes polygon further away
@@ -178,24 +174,42 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 	});
 
 	const { camera, gl } = useThree();
+	// camera.zoom = 2;
+	// camera.updateProjectionMatrix();
 
 	// https://codesandbox.io/s/bounds-and-makedefault-rz2g0?file=/src/App.js:518-548
 
 	return <>
 		<Bounds fit clip>
-			<group dispose={null}>
-				{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
-					?
-					<points geometry={geometry} material={material}/>
-					:
-					<mesh geometry={geometry} material={meshMatcam} position={[0, 0, 0]} onClick={() => {
-					// just testing
-					// camera.zoom = 2;
-					// camera.updateProjectionMatrix();
-				}}/>
-				}
-			</group>
+			<Group geometry={geometry} material={material} />
 		</Bounds>
 		<OrbitControls target={vector} makeDefault />
 	</>
+}
+
+const Group = ({geometry, material}: GeometryProps) => {
+	const [matcap, url] = useMatcapTexture(
+		67, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
+		1024 // size of the texture ( 64, 128, 256, 512, 1024 )
+	)
+
+	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
+	const bounds = useBounds();
+	useEffect(() => {
+		bounds.refresh().clip().fit();  // calculate scene bounds
+	}, [geometry]);
+	const meshMatcam = new MeshMatcapMaterial({
+		matcap: matcap
+	});
+
+	return (
+		<group dispose={null}>
+			{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
+				?
+				<points geometry={geometry} material={material}/>
+				:
+				<mesh geometry={geometry} material={meshMatcam} position={[0, 0, 0]}/>
+			}
+		</group>
+	)
 }

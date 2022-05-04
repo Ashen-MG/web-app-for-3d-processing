@@ -1,6 +1,5 @@
 import React, {Suspense, useEffect, useState} from "react";
 import {Canvas} from "@react-three/fiber";
-import {OrbitControls, Environment, useProgress} from "@react-three/drei";
 import {Model} from "./components/model/Model";
 import {UploadedFileProp} from "app/App";
 import {useFileReader} from "./hooks";
@@ -45,7 +44,6 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 							background={false}
 							preset={"lobby"}/>
 						*/}
-						{/* camera movement control with a mouse */}
 					</Provider>
 				</Canvas>
 			</Suspense>

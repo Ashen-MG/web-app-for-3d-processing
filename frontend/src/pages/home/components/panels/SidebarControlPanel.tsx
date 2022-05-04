@@ -17,8 +17,4 @@ export const SideControlPanel = () => {
 	)
 }
 
-const NoAlgorithm = () => {
-	return (
-		<small>Algorithm parameters will show up here.</small>
-	)
-}
+const NoAlgorithm = () => <small>Algorithm parameters will show up here.</small>

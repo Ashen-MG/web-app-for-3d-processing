@@ -144,11 +144,24 @@ export const TopControlPanel = ({setUploadedFile}: UploadFileProps) => {
 						<YesNoModal show={showYesNoModal}
 												setShow={setShowYesNoModal}
 												headline="Do you wish to continue?"
-												text="Uploading new object will overwrite your current state of work. Make sure you save it before upload a new model.
-												Do you wish to continue?"
+												text="Uploading a new object will overwrite your current state of work. Do you wish to continue?"
 												handleYes={openUploadFileDialog}
 						/>
 				  </Nav.Item>
+					<Nav.Item as="li">
+						<Nav.Link onClick={openLoadJsonFileDialog}>
+							<div className="d-flex align-items-center">
+								<Folder2Open size={22} color={defaultStyles.textColor} className="me-1"/>
+								Load State
+							</div>
+						</Nav.Link>
+						<input type="file"
+									 onChange={handleJsonFileUpload}
+									 accept=".json"
+									 ref={loadInputJsonFile}
+									 hidden
+						/>
+					</Nav.Item>
 				  <NavDropdown title={
 						<div className="d-flex align-items-center">
 							<CaretDownFill size={18} color={defaultStyles.textColor} className="me-1" />
@@ -201,20 +214,6 @@ export const TopControlPanel = ({setUploadedFile}: UploadFileProps) => {
 								</div>
 								</Nav.Link>
 						}
-					</Nav.Item>
-					<Nav.Item as="li">
-						<Nav.Link onClick={openLoadJsonFileDialog}>
-							<div className="d-flex align-items-center">
-								<Folder2Open size={22} color={defaultStyles.textColor} className="me-1"/>
-								Load
-							</div>
-						</Nav.Link>
-						<input type="file"
-									 onChange={handleJsonFileUpload}
-									 accept=".json"
-									 ref={loadInputJsonFile}
-									 hidden
-						/>
 					</Nav.Item>
 					<NavDropdown title={
 						<div className="d-flex align-items-center">

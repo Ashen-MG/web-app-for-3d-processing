@@ -3,20 +3,26 @@ import Form from "react-bootstrap/Form";
 import {useMutation} from "react-query";
 import {apiApplyAlgorithm} from "app/adapters";
 import {useEffect, useState} from "react";
-import {BackendState, setBackendState} from "app/context/globalSlice";
+import {
+	Algorithm as AlgorithmProps,
+	BackendState,
+	setAlgorithmInProgress,
+	setBackendState
+} from "app/context/globalSlice";
 import {useDispatch} from "react-redux";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
-import createSnackbar, {SnackTypes} from "components/Snackbar";
-import {Algorithm as AlgorithmProps} from "app/context/globalSlice";
+import createSnackbar, {resolveSnackbar, SnackTypes} from "components/Snackbar";
 import {Play} from "react-bootstrap-icons"
 import sidebarStyles from "../panels/styles/sidebar.module.scss";
 import styles from "./algorithm.module.scss";
+import {OverlayTrigger, Tooltip} from "react-bootstrap";
 
 export const Algorithm = (props: AlgorithmProps) => {
 
 	const dispatch = useDispatch();
 	const backendState: BackendState | undefined = useAppSelector((state: RootState) => state.global.backendState);
+	const algorithmInProgress: boolean = useAppSelector((state: RootState) => state.global.algorithmInProgress);
 
 	const [parameters, _setParameters] = useState<string[]>(Array(props.parameters.length).fill(""));
 
@@ -33,11 +39,17 @@ export const Algorithm = (props: AlgorithmProps) => {
 	const mutation = useMutation(apiApplyAlgorithm, {
 		onSuccess: (response) => {
 			dispatch(setBackendState(response.data));
+			dispatch(setAlgorithmInProgress(false));
+			resolveSnackbar(toastId, "Algorithm has been applied.", true);
 		},
 		onError: (error) => {
+			// TODO: show error from the backend to the user
 			console.error(error);
+			resolveSnackbar(toastId, "Something went wrong.", false);
 		}
 	});
+
+	const toastId = "testToast"
 
 	const applyAlgorithm = () => {
 		// TODO: more validation checks (min, max values etc.)
@@ -48,6 +60,8 @@ export const Algorithm = (props: AlgorithmProps) => {
 				return;
 			}
 		}
+		dispatch(setAlgorithmInProgress(true));
+		createSnackbar("Applying the algorithm...", SnackTypes.loading, 5000, toastId);
 		mutation.mutate({
 			currentVersion: {
 				token: backendState!.token,
@@ -88,12 +102,27 @@ export const Algorithm = (props: AlgorithmProps) => {
 				}
 			</FloatingLabel>
 		))}
-		<button
-			className="btn btn-info"
-			onClick={applyAlgorithm}
+		<OverlayTrigger
+			placement="left"
+			overlay={
+				backendState === undefined
+					? <Tooltip>There needs to be a file uploaded before applying an algorithm.</Tooltip>
+					:
+				algorithmInProgress
+					? <Tooltip>There's another algorithm currently running.</Tooltip>
+					: <></>
+			}
 		>
-			<div className="d-flex"><Play size={25}/> Run</div>
-		</button>
+			<div className="d-inline-block">
+				<button
+					className="btn btn-info"
+					onClick={applyAlgorithm}
+					disabled={backendState === undefined || algorithmInProgress}
+				>
+					<div className="d-flex"><Play size={25}/> Run</div>
+				</button>
+			</div>
+		</OverlayTrigger>
 		<hr style={{width: "12%"}}/>
 	</>)
 }
