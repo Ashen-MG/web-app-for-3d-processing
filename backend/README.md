@@ -4,4 +4,4 @@
 - Install project as module i.e. `pip install -e`.
 
 Prerequisites for open3d on ubuntu:
-apt-get install ffmpeg libsm6 libxext6 -y
+`apt-get install ffmpeg libsm6 libxext6 -y`
