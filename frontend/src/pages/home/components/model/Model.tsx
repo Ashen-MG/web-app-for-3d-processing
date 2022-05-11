@@ -32,13 +32,14 @@ interface FileExtension {
 	fileExtension: "ply" | "xyz" | "xyzrgb" | "pcd"
 }
 
+const fileExtensionToLoader = new Map<string, any>([["ply", PLYLoader], ["xyz", XYZLoader], ["xyzrgb", XYZLoader], ["pcd", PCDLoader]]);
+
 /**
  * Abstract model for a point cloud (parent).
  * @param fileData Raw data from the point cloud file.
  * @param fileExtension
  */
 export const Model = ({fileData, fileExtension}: InitialFileData & FileExtension) => {
-
 	const backendState: BackendState | undefined = useAppSelector((state: RootState) => state.global.backendState);
 
 	const [_fileData, setFileData] = useState<string>();
@@ -48,7 +49,7 @@ export const Model = ({fileData, fileExtension}: InitialFileData & FileExtension
 		if (fileData === undefined) return;
 		setFileData(fileData);
 		setFileExtension(fileExtension);
-	}, [fileData, fileExtension]);
+	}, [fileData]);
 	
 	useEffect(() => {
 		if (backendState === undefined) return;
@@ -56,28 +57,59 @@ export const Model = ({fileData, fileExtension}: InitialFileData & FileExtension
 		setFileExtension(backendState.fileExtension);
 	}, [backendState]);
 
+	useEffect(() => {
+		return () => {
+			console.log("ummount");
+		}
+	}, []);
+
+	// TODO: test if useLoader takes loader and/or url as initial state or it would be updated on prop change (like custom hook)
+
+	const model: BufferGeometry | Points = useLoader(
+		_fileExtension ? fileExtensionToLoader.get(_fileExtension) : PLYLoader,
+		(_fileExtension && _fileData) ? _fileData : "",
+		loader => {console.log("PLY loaded")}
+	);
+	const geometry: BufferGeometry = _fileExtension === "pcd" ? (model as Points).geometry : model as BufferGeometry;
+	const material: Material = new PointsMaterial({color: "white", size: 0.1});
+
+	return (
+		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
+	)
+
+	{/*
 	if (!_fileData) return <></>
-	if (_fileExtension === "ply")        return <ModelPLY fileData={_fileData} />
-	else if (_fileExtension === "xyz" || _fileExtension === "xyzrgb")   return <ModelXYZ fileData={_fileData} />
-	else if (_fileExtension === "pcd")   return <ModelPCD fileData={_fileData} />
-	return                              <>TODO: error - invalid file extension, error should be handled sooner</>
+	if (_fileExtension === "ply") return <ModelPLY fileData={_fileData} />
+	else if (_fileExtension === "xyz" || _fileExtension === "xyzrgb") return <ModelXYZ fileData={_fileData} />
+	else if (_fileExtension === "pcd") return <ModelPCD fileData={_fileData} />
+	return <>TODO: error - invalid file extension, error should be handled sooner</>
+	*/}
 }
 
 const ModelPLY = ({fileData}: FileData) => {
-	const geometry: BufferGeometry = useLoader(PLYLoader, fileData, loader => {});
+	const geometry: BufferGeometry = useLoader(PLYLoader, fileData, loader => {console.log("PLY loaded")});
 	const material: Material = new PointsMaterial({color: "white", size: 0.1});
-	return <Geometry geometry={geometry} material={material} />
+	return (
+		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
+	)
 }
 
 const ModelXYZ = ({fileData}: FileData) => {
-	const geometry: BufferGeometry = useLoader(XYZLoader, fileData, loader => {});
+	const geometry: BufferGeometry = useLoader(XYZLoader, fileData, loader => {console.log("XYZ loaded")});
 	const material: Material = new PointsMaterial({color: "white", size: 0.1});
-	return <Geometry geometry={geometry} material={material} />
+	return (
+		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
+	)
 }
 
 const ModelPCD = ({fileData}: FileData) => {
-	const points: Points<BufferGeometry, Material | Material[]> = useLoader(PCDLoader, fileData);
-	return <></>
+	const points: Points<BufferGeometry, Material | Material[]> = useLoader(PCDLoader, fileData, loader => {console.log("PCD loaded")});
+	const geometry: BufferGeometry = points.geometry;
+	//const material: Material = points.material as Material;  // TODO: can also be Material[]
+	const material: Material = new PointsMaterial({color: "white", size: 0.1});
+	return (
+		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
+	)
 }
 
 interface GeometryProps {
@@ -203,7 +235,7 @@ const Group = ({geometry, material}: GeometryProps) => {
 	});
 
 	return (
-		<group dispose={null}>
+		<group>
 			{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
 				?
 				<points geometry={geometry} material={material}/>

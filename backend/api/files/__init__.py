@@ -1,5 +1,5 @@
 from os.path import join as joinPath
-from os import mkdir
+from os import mkdir  # TODO: makedirs
 from random import choices as randomChoices
 from string import ascii_lowercase as letters
 from string import digits

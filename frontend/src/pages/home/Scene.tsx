@@ -20,13 +20,12 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 
 	useEffect(() => {
 		if (uploadedFile !== undefined)
-			setFileExtension(getFileExtension(uploadedFile!.name));
+			setFileExtension(getFileExtension(uploadedFile.name));
 	}, [uploadedFile]);
 
 	// if we want to use redux store in components that are inside react-fiber-three canvas:
 	// https://github.com/pmndrs/react-three-fiber/issues/43
 	// https://spectrum.chat/react-three-fiber/general/redux-state-to-child-component-of-canvas~a0cce2c2-2254-44a2-82c7-952e37e1a1ff
-
 	return (<>
 		<div className={sceneStyles.container}>
 			<Suspense fallback={<Loader/>}>  {/* TODO: some better loading */}

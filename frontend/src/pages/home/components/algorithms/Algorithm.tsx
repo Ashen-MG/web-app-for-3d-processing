@@ -39,13 +39,15 @@ export const Algorithm = (props: AlgorithmProps) => {
 	const mutation = useMutation(apiApplyAlgorithm, {
 		onSuccess: (response) => {
 			dispatch(setBackendState(response.data));
-			dispatch(setAlgorithmInProgress(false));
 			resolveSnackbar(toastId, "Algorithm has been applied.", true);
 		},
 		onError: (error) => {
 			// TODO: show error from the backend to the user
 			console.error(error);
 			resolveSnackbar(toastId, "Something went wrong.", false);
+		},
+		onSettled: () => {
+			dispatch(setAlgorithmInProgress(false));
 		}
 	});
 
