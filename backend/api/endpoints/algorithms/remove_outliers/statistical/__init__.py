@@ -1,29 +1,8 @@
-from flask import request, url_for
-from flask import current_app as app
-from flasgger import SwaggerView
-from endpoints.algorithms.remove_outliers.statistical.algorithm import statisticalOutlierRemoval
-from os.path import join as joinPath
+import open3d as o3d
 
-class StatisticalOutlierRemovalView(SwaggerView):
-	def put(self):
-		token = request.json["token"]
-		currentVersion = request.json["version"]
-		fileExtension = request.json["fileExtension"]
-		numberOfNeighbors = request.json["numberOfNeighbors"]
-		stdRatio = request.json["stdRatio"]
-
-		nextVersion = currentVersion + 1
-		nextVersionFileName = f"v{nextVersion}.{fileExtension}"
-
-		currentFilePath = joinPath(app.root_path, "static", "uploads", token, f"v{currentVersion}.{fileExtension}")
-		outputFilePath = joinPath(app.root_path, "static", "uploads", token, nextVersionFileName)
-
-		statisticalOutlierRemoval(currentFilePath=currentFilePath, outputFilepath=outputFilePath,
-		                          numberOfNeighbors=numberOfNeighbors, stdRatio=stdRatio)
-
-		return {
-			"fileExtension": fileExtension,
-			"token": token,
-			"version": nextVersion,
-			"highestVersion": nextVersion
-		}
+def statisticalOutlierRemoval(currentFilePath: str, outputFilepath: str, numberOfNeighbors: int, stdRatio: float):
+	pcd = o3d.io.read_point_cloud(currentFilePath)
+	_, index = pcd.remove_statistical_outlier(nb_neighbors=numberOfNeighbors, std_ratio=stdRatio)
+	inlierpcd = pcd.select_by_index(index)
+	o3d.io.write_point_cloud(outputFilepath, inlierpcd)
+	return True, ""

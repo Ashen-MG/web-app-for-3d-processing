@@ -17,6 +17,7 @@ import {Play} from "react-bootstrap-icons"
 import sidebarStyles from "../panels/styles/sidebar.module.scss";
 import styles from "./algorithm.module.scss";
 import {OverlayTrigger, Tooltip} from "react-bootstrap";
+import {AxiosError} from "axios";
 
 export const Algorithm = (props: AlgorithmProps) => {
 
@@ -39,12 +40,10 @@ export const Algorithm = (props: AlgorithmProps) => {
 	const mutation = useMutation(apiApplyAlgorithm, {
 		onSuccess: (response) => {
 			dispatch(setBackendState(response.data));
-			resolveSnackbar(toastId, "Algorithm has been applied.", true);
+			resolveSnackbar(toastId, `Algorithm has been applied.`, true);
 		},
-		onError: (error) => {
-			// TODO: show error from the backend to the user
-			console.error(error);
-			resolveSnackbar(toastId, "Something went wrong.", false);
+		onError: (error: AxiosError) => {
+			resolveSnackbar(toastId, `Something went wrong.${error.response === undefined ? "" : ` Reason: ${error.response.data.message}`}`, false);
 		},
 		onSettled: () => {
 			dispatch(setAlgorithmInProgress(false));
@@ -54,7 +53,6 @@ export const Algorithm = (props: AlgorithmProps) => {
 	const toastId = "testToast"
 
 	const applyAlgorithm = () => {
-		// TODO: more validation checks (min, max values etc.)
 		const apiAlgParams = props.parameters.map((p, i) => [p.apiKey, parseFloat(parameters[i])]);
 		for (let i = 0; i < apiAlgParams.length; i++) {
 			if (!apiAlgParams[i][1]) {
@@ -76,7 +74,7 @@ export const Algorithm = (props: AlgorithmProps) => {
 		});
 	}
 
-	return (<>
+	return <>
 		<header className={`${sidebarStyles.sidebarHeader}`}>
 			<h2 className={`${sidebarStyles.sidebarTitle}`}>{props.name}</h2>
 		</header>
@@ -110,6 +108,9 @@ export const Algorithm = (props: AlgorithmProps) => {
 				backendState === undefined
 					? <Tooltip>There needs to be a file uploaded before applying an algorithm.</Tooltip>
 					:
+				parameters.some(p => p === "")
+					? <Tooltip>All algorithm parameters are required.</Tooltip>
+					:
 				algorithmInProgress
 					? <Tooltip>There's another algorithm currently running.</Tooltip>
 					: <></>
@@ -119,12 +120,12 @@ export const Algorithm = (props: AlgorithmProps) => {
 				<button
 					className="btn btn-info"
 					onClick={applyAlgorithm}
-					disabled={backendState === undefined || algorithmInProgress}
+					disabled={backendState === undefined || parameters.some(p => p === "") || algorithmInProgress}
 				>
 					<div className="d-flex"><Play size={25}/> Run</div>
 				</button>
 			</div>
 		</OverlayTrigger>
 		<hr style={{width: "12%"}}/>
-	</>)
+	</>
 }

@@ -1,16 +1,18 @@
 import endpoints.upload
 import endpoints.export
 import endpoints.convert
-import endpoints.algorithms.voxel_downsampling
-import endpoints.algorithms.remove_outliers.statistical
-import endpoints.algorithms.remove_outliers.radius
-import endpoints.algorithms.poisson_sampling
-import endpoints.algorithms.poisson_surface_reconstruction
-import endpoints.algorithms.edge_extraction
-
+from endpoints.algorithms.voxel_downsampling import voxelDownsampling
+from endpoints.algorithms.remove_outliers.statistical import statisticalOutlierRemoval
+from endpoints.algorithms.remove_outliers.radius import radiusOutlierRemoval
+from endpoints.algorithms.edge_extraction import edgeExtraction
+from endpoints.algorithms.poisson_sampling import poissonSampling
+from endpoints.algorithms.poisson_surface_reconstruction import poissonSurfaceReconstruction
 from flask import Flask
 from flask import json
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_cors import CORS
+from flasgger import Swagger
 from werkzeug.exceptions import HTTPException
 from os import urandom
 import sys
@@ -18,23 +20,80 @@ import sys
 app = Flask(__name__)
 app.config["SECRET_KEY"] = urandom(32)
 
+limiter = Limiter(app, key_func=get_remote_address, default_limits=["120/minute"])
+
 CORS(app, resources={r"/*": {"origins": ["*"]}}, supports_credentials=True)
+
+# Swagger (OpenAPI) docs
+swagger = Swagger(
+	app,
+	config={
+		"headers": [],
+		"specs": [
+			{
+				"endpoint": 'apispec',
+				"route": '/apispec.json',
+				"rule_filter": lambda rule: True,
+				"model_filter": lambda tag: True,
+			}
+		],
+		"static_url_path": "/flasgger_static",
+		"swagger_ui": True,
+		"specs_route": "/apidocs/"
+	},
+	template={
+		"info": {
+			"title": "International interest in sport API Documentation",
+			"version": "1.0"
+		},
+		"host": "localhost:3001",
+		"basePath": "/api",
+		"securityDefinitions": {
+			"Bearer": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header"
+			}
+		},
+		"consumes": [
+			"application/json",
+		],
+		"produces": [
+			"application/json",
+		],
+	},
+)
 
 app.config.from_pyfile("config.py")
 
+
 @app.errorhandler(HTTPException)
 def handle_exception(e):
-	""" Return JSON instead of HTML for HTTP errors. """
+	"""
+	Return JSON instead of HTML for HTTP errors.
+	https://flask.palletsprojects.com/en/2.1.x/errorhandling/
+	"""
 	# start with the correct headers and status code from the error
 	response = e.get_response()
 	# replace the body with JSON
 	response.data = json.dumps({
-			"code": e.code,
-			"name": e.name,
-			"description": e.description,
+		"code": e.code,
+		"name": e.name,
+		"message": e.description,
 	})
 	response.content_type = "application/json"
 	return response
+
+
+@app.errorhandler(500)
+def handleInternalServerException(e):
+	return {"message": "Internal server error."}, 500
+
+
+@app.errorhandler(429)
+def limiterTooManyRequestsHandler(e):
+	return {"message": "Too many requests."}, 429
+
 
 app.add_url_rule(
 	"/api/upload",
@@ -56,37 +115,37 @@ app.add_url_rule(
 
 app.add_url_rule(
 	"/api/algorithms/voxel-downsampling",
-	view_func=endpoints.algorithms.voxel_downsampling.VoxelDownsamplingView.as_view("voxel_downsampling"),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("voxel_downsampling", voxelDownsampling, "voxelSize"),
 	methods=["PUT"]
 )
 
 app.add_url_rule(
 	"/api/algorithms/statistical-outlier-removal",
-	view_func=endpoints.algorithms.remove_outliers.statistical.StatisticalOutlierRemovalView.as_view("statistical_outlier_removal"),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("statistical_outlier_removal", statisticalOutlierRemoval, "numberOfNeighbors", "stdRatio"),
 	methods=["PUT"]
 )
 
 app.add_url_rule(
 	"/api/algorithms/radius-outlier-removal",
-	view_func=endpoints.algorithms.remove_outliers.radius.RadiusOutlierRemovalView.as_view("radius_outlier_removal"),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("radius_outlier_removal", radiusOutlierRemoval, "numberOfPoints", "radius"),
 	methods=["PUT"]
 )
 
 app.add_url_rule(
 	"/api/algorithms/poisson-sampling",
-	view_func=endpoints.algorithms.poisson_sampling.PoissonSamplingView.as_view("poisson_sampling"),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("poisson_sampling", poissonSampling, "numberOfPoints"),
 	methods=["PUT"]
 )
 
 app.add_url_rule(
 	"/api/algorithms/poisson-surface-reconstruction",
-	view_func=endpoints.algorithms.poisson_surface_reconstruction.PoissonSurfaceReconstructionView.as_view("poisson_surface_reconstruction"),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("poisson_surface_reconstruction", poissonSurfaceReconstruction, "depth"),
 	methods=["PUT"]
 )
 
 app.add_url_rule(
 	"/api/algorithms/edge-extraction",
-	view_func=endpoints.algorithms.edge_extraction.EdgeExtractionView.as_view("edge_extraction"),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("edge_extraction", edgeExtraction, "featureAngle"),
 	methods=["PUT"]
 )
 
@@ -94,7 +153,6 @@ if __name__ == '__main__':
 	mode = None
 	if len(sys.argv) > 1:
 		mode = sys.argv[1]
-		print(mode)
 	if mode is None or mode not in ["dev", "prod"]:
 		print("Invalid mode.")
 		quit(1)

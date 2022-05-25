@@ -24,10 +24,6 @@ interface InitialFileData {
 	fileData: string | undefined
 }
 
-interface FileData {
-	fileData: string
-}
-
 interface FileExtension {
 	fileExtension: "ply" | "xyz" | "xyzrgb" | "pcd"
 }
@@ -57,56 +53,17 @@ export const Model = ({fileData, fileExtension}: InitialFileData & FileExtension
 		setFileExtension(backendState.fileExtension);
 	}, [backendState]);
 
-	useEffect(() => {
-		return () => {
-			console.log("ummount");
-		}
-	}, []);
-
-	// TODO: test if useLoader takes loader and/or url as initial state or it would be updated on prop change (like custom hook)
-
+	/** useLoader doesn't take loader and URL (or file data) as an initial state.
+	 * 	Its parameters are updated on prop change (similarly to custom hook).
+	 */
 	const model: BufferGeometry | Points = useLoader(
 		_fileExtension ? fileExtensionToLoader.get(_fileExtension) : PLYLoader,
 		(_fileExtension && _fileData) ? _fileData : "",
-		loader => {console.log("PLY loaded")}
+		loader => {console.log("Model has been loaded.")}
 	);
 	const geometry: BufferGeometry = _fileExtension === "pcd" ? (model as Points).geometry : model as BufferGeometry;
 	const material: Material = new PointsMaterial({color: "white", size: 0.1});
 
-	return (
-		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
-	)
-
-	{/*
-	if (!_fileData) return <></>
-	if (_fileExtension === "ply") return <ModelPLY fileData={_fileData} />
-	else if (_fileExtension === "xyz" || _fileExtension === "xyzrgb") return <ModelXYZ fileData={_fileData} />
-	else if (_fileExtension === "pcd") return <ModelPCD fileData={_fileData} />
-	return <>TODO: error - invalid file extension, error should be handled sooner</>
-	*/}
-}
-
-const ModelPLY = ({fileData}: FileData) => {
-	const geometry: BufferGeometry = useLoader(PLYLoader, fileData, loader => {console.log("PLY loaded")});
-	const material: Material = new PointsMaterial({color: "white", size: 0.1});
-	return (
-		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
-	)
-}
-
-const ModelXYZ = ({fileData}: FileData) => {
-	const geometry: BufferGeometry = useLoader(XYZLoader, fileData, loader => {console.log("XYZ loaded")});
-	const material: Material = new PointsMaterial({color: "white", size: 0.1});
-	return (
-		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
-	)
-}
-
-const ModelPCD = ({fileData}: FileData) => {
-	const points: Points<BufferGeometry, Material | Material[]> = useLoader(PCDLoader, fileData, loader => {console.log("PCD loaded")});
-	const geometry: BufferGeometry = points.geometry;
-	//const material: Material = points.material as Material;  // TODO: can also be Material[]
-	const material: Material = new PointsMaterial({color: "white", size: 0.1});
 	return (
 		geometry?.attributes.position.count === 0 ? <></> : <Geometry geometry={geometry} material={material} />
 	)
@@ -219,6 +176,9 @@ const Geometry = ({geometry, material}: GeometryProps) => {
 	</>
 }
 
+/**
+ *
+ * */
 const Group = ({geometry, material}: GeometryProps) => {
 	const [matcap, url] = useMatcapTexture(
 		67, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
@@ -226,10 +186,14 @@ const Group = ({geometry, material}: GeometryProps) => {
 	)
 
 	const visualizationMode: VISUALIZATION_MODE = useAppSelector((state: RootState) => state.global.visualizationMode);
+
+	/** Since we're nested inside <Bounds/> component, useBounds() will not return null.  */
 	const bounds = useBounds();
+
 	useEffect(() => {
 		bounds.refresh().clip().fit();  // calculate scene bounds
 	}, [geometry]);
+
 	const meshMatcam = new MeshMatcapMaterial({
 		matcap: matcap
 	});
@@ -238,9 +202,9 @@ const Group = ({geometry, material}: GeometryProps) => {
 		<group>
 			{visualizationMode === VISUALIZATION_MODE.POINT_CLOUD
 				?
-				<points geometry={geometry} material={material}/>
+					<points geometry={geometry} material={material}/>
 				:
-				<mesh geometry={geometry} material={meshMatcam} position={[0, 0, 0]}/>
+					<mesh geometry={geometry} material={meshMatcam} position={[0, 0, 0]}/>
 			}
 		</group>
 	)

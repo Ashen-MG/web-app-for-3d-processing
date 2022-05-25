@@ -1,28 +1,9 @@
-from flask import request, url_for
-from flask import current_app as app
-from flasgger import SwaggerView
-from endpoints.algorithms.voxel_downsampling.algorithm import voxelDownsampling
-from os.path import join as joinPath
+import open3d as o3d
 
-class VoxelDownsamplingView(SwaggerView):
-	def put(self):
-		token = request.json["token"]
-		currentVersion = request.json["version"]
-		fileExtension = request.json["fileExtension"]
-		voxelSize = request.json["voxelSize"]
-
-		nextVersion = currentVersion + 1
-		nextVersionFileName = f"v{nextVersion}.{fileExtension}"
-
-		# TODO: create path
-		currentFilePath = joinPath(app.root_path, "static", "uploads", token, f"v{currentVersion}.{fileExtension}")
-		outputFilePath = joinPath(app.root_path, "static", "uploads", token, nextVersionFileName)
-
-		voxelDownsampling(currentFilePath=currentFilePath, outputFilepath=outputFilePath, voxelSize=voxelSize)
-
-		return {
-			"fileExtension": fileExtension,
-			"token": token,
-			"version": nextVersion,
-			"highestVersion": nextVersion
-		}
+def voxelDownsampling(currentFilePath: str, outputFilepath: str, voxelSize: float):
+	if voxelSize <= 0:
+		return False, "Voxel size should be > 0."
+	pcd = o3d.io.read_point_cloud(currentFilePath)
+	downpcd = pcd.voxel_down_sample(voxel_size=voxelSize)
+	o3d.io.write_point_cloud(outputFilepath, downpcd)
+	return True, ""

@@ -1,0 +1,39 @@
+Voxel Downsampling
+---
+parameters:
+  - name: body
+    in: body
+    type: object
+    schema:
+      type: object
+      properties:
+        token:
+          type: string
+          example: someToken
+        version:
+          type: integer
+          example: 1
+        fileExtension:
+          type: string
+          example: ply
+        voxelSize:
+          type: number
+          example: 0.05
+responses:
+  200:
+    description: The algorithm has been successfully applied.
+    schema:
+      type: "object"
+      properties:
+        token:
+          type: string
+        fileExtension:
+          type: string
+        version:
+          type: integer
+        highestVersion:
+          type: integer
+  400:
+    description: Missing JSON header, missing required parameter, invalid input or value of some parameter.
+  500:
+    description: Internal server error (e.g. unexpected situation while applying the algorithm).
