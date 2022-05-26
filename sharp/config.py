@@ -4,7 +4,7 @@ import os
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # dataset preparation
-DATA_DIR = r"C:\Users\Marti\projects\datasets\Track1-CC3D-PSE-Lines"
+DATA_DIR = r""
 DATA_SCANS_DIRNAME = "cc3d_pse_scan"
 DATA_CAD_DIRNAME = "cc3d_pse_cad"
 DATA_CAD_EDGES_DIRNAME = "cc3d_pse_edges"
