@@ -43,7 +43,7 @@ export const Algorithm = (props: AlgorithmProps) => {
 			resolveSnackbar(toastId, `Algorithm has been applied.`, true);
 		},
 		onError: (error: AxiosError) => {
-			resolveSnackbar(toastId, `Something went wrong.${error.response === undefined ? "" : ` Reason: ${error.response.data.message}`}`, false);
+			resolveSnackbar(toastId, `${error.response === undefined ? "Something went wrong." : `${error.response.data.message}`}`, false);
 		},
 		onSettled: () => {
 			dispatch(setAlgorithmInProgress(false));

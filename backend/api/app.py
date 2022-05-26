@@ -1,12 +1,15 @@
 import endpoints.upload
 import endpoints.export
 import endpoints.convert
-from endpoints.algorithms.voxel_downsampling import voxelDownsampling
-from endpoints.algorithms.remove_outliers.statistical import statisticalOutlierRemoval
-from endpoints.algorithms.remove_outliers.radius import radiusOutlierRemoval
-from endpoints.algorithms.edge_extraction import edgeExtraction
-from endpoints.algorithms.poisson_sampling import poissonSampling
-from endpoints.algorithms.poisson_surface_reconstruction import poissonSurfaceReconstruction
+import endpoints.algorithms
+from algorithms.voxel_downsampling import voxelDownsampling
+from algorithms.remove_outliers.statistical import statisticalOutlierRemoval
+from algorithms.remove_outliers.radius import radiusOutlierRemoval
+from algorithms.edge_extraction import edgeExtraction
+from algorithms.poisson_sampling import poissonSampling
+from algorithms.poisson_surface_reconstruction import poissonSurfaceReconstruction
+from algorithms.ml.predict_offsets import predict as predictOffsets
+from algorithms.ml.predict_offsets_edges import predict as predictEdgeOffsets
 from flask import Flask
 from flask import json
 from flask_limiter import Limiter
@@ -139,6 +142,18 @@ app.add_url_rule(
 app.add_url_rule(
 	"/api/algorithms/edge-extraction",
 	view_func=endpoints.algorithms.AlgorithmView.as_view("edge_extraction", edgeExtraction, "featureAngle"),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/ml/sharpen-point-cloud",
+	view_func=endpoints.algorithms.AlgorithmView.as_view("ml_predict_offsets", predictOffsets),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/ml/sharpen-point-cloud-edges",
+	view_func=endpoints.algorithms.AlgorithmView.as_view("ml_predict_offsets_edges", predictEdgeOffsets),
 	methods=["PUT"]
 )
 

@@ -82,8 +82,8 @@ history = newModel.fit(trainDataset, epochs=10, validation_data=testDataset, cal
 visualizeHistory(history, title=None)
 
 # TODO
-"""newModel.save("saved-model")
-quit(1)"""
+newModel.save("saved-model")
+quit(1)
 # newModel = keras.models.load_model("model", compile=False)
 
 predictions = newModel.predict(trainScanPoints)

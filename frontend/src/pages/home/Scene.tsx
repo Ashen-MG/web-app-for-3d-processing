@@ -7,6 +7,7 @@ import sceneStyles from "pages/home/styles/scene.module.scss";
 import {getFileExtension} from "../../app/helpers/global";
 import {Provider} from "react-redux";
 import {store} from "app/store";
+import {PerspectiveCamera} from "@react-three/drei";
 
 /**
  * Main 3D scene.
@@ -34,6 +35,7 @@ export const Scene = ({uploadedFile}: UploadedFileProp) => {
 					style={{width: "100%", height: "100%", paddingRight: "280px"}}
 					onCreated={state => state.gl.setClearColor("#0a0a0a")}
 				>
+					<PerspectiveCamera makeDefault />
 					<Provider store={store}>
 						{/* uploadedFileData !== undefined && ["ply", "xyz", "xyzrgb", "pcd"].includes(fileExtension) */}
 						<Model fileData={uploadedFileData} fileExtension={fileExtension as "ply" | "xyz" | "xyzrgb" | "pcd"}/>

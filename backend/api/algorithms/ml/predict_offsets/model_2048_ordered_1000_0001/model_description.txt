@@ -1,0 +1,9 @@
+From `sharp/models/predict_offsets.py`
+mlp(128, 256, 512)
+learning rate = 0.001
+epochs = 1000
+with `config.py`
+ORDERED = True
+EDGES_ONLY = False
+NUM_POINTS = 2048
+BATCH_SIZE = 2500

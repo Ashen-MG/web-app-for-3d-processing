@@ -16,7 +16,8 @@ export enum AlgorithmCategory {
 	DENOISE = "Denoise",
 	SAMPLING = "Sampling",
 	POINT_CLOUD_TO_MESH = "Point cloud to mesh",
-	MESH_EDGE_EXTRACTION = "Edge extraction from mesh"
+	MESH_EDGE_EXTRACTION = "Edge extraction from mesh",
+	DEEP_LEARNING = "Deep learning"
 }
 
 export interface Algorithm {
@@ -163,7 +164,7 @@ const initialState: GlobalState = {
 			]
 		},
 		{
-			name: "Edge extraction",
+			name: "Edge Extraction",
 			category: AlgorithmCategory.MESH_EDGE_EXTRACTION,
 			apiPath: "/algorithms/edge-extraction",
 			parameters: [
@@ -177,6 +178,18 @@ const initialState: GlobalState = {
 					}
 				}
 			]
+		},
+		{
+			name: "Sharpen Point Cloud",
+			category: AlgorithmCategory.DEEP_LEARNING,
+			apiPath: "/algorithms/ml/sharpen-point-cloud",
+			parameters: []
+		},
+		{
+			name: "Sharpen Point Cloud Edges",
+			category: AlgorithmCategory.DEEP_LEARNING,
+			apiPath: "/algorithms/ml/sharpen-point-cloud-edges",
+			parameters: []
 		}
 	]
 }
