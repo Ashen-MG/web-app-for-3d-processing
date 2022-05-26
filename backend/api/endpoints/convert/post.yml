@@ -1,0 +1,25 @@
+Convert and export an already uploaded 3D model to specified formats.
+---
+consumes:
+ - multipart/form-data
+parameters:
+ - in: formData
+   name: file
+   type: file
+   description: 3D model file.
+ - in: formData
+   name: convertTypes
+   type: string
+   description: JSON stringified list of strings. Available types are ply, xyz, xyzrgb, pcd and pts.
+responses:
+  200:
+    description: Zip of converted files. If the input was a mesh, only a PLY data format will be exported.
+    schema:
+      type: "object"
+      properties:
+        fileURL:
+          type: string
+  400:
+    description: Missing required parameter, invalid input or value of some parameter.
+  500:
+    description: Internal server error.

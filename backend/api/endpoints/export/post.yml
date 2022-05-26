@@ -1,4 +1,4 @@
-Poisson sampling.
+Upload and convert a 3D model to specified formats.
 ---
 parameters:
   - name: body
@@ -16,13 +16,20 @@ parameters:
         fileExtension:
           type: string
           example: ply
-        numberOfPoints:
-          type: number
-          example: 2048
+        convertTypes:
+          type: array
+          items:
+            type: string
+            example: ply, xyz, xyzrgb, pcd, pts
 responses:
   200:
-    description: The algorithm has been successfully applied.
+    description: Zip of converted files. If the input was a mesh, only a PLY data format will be exported.
+    schema:
+      type: "object"
+      properties:
+        fileURL:
+          type: string
   400:
     description: Missing JSON header, missing required parameter, invalid input or value of some parameter.
   500:
-    description: Internal server error (e.g. unexpected situation while applying the algorithm).
+    description: Internal server error.

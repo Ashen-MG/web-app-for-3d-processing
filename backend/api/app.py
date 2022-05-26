@@ -43,18 +43,11 @@ swagger = Swagger(
 	},
 	template={
 		"info": {
-			"title": "International interest in sport API Documentation",
+			"title": "Web Application for 3D data Conversion, Processing and Visualization",
 			"version": "1.0"
 		},
 		"host": "localhost:3001",
 		"basePath": "/api",
-		"securityDefinitions": {
-			"Bearer": {
-				"type": "apiKey",
-				"name": "Authorization",
-				"in": "header"
-			}
-		},
 		"consumes": [
 			"application/json",
 		],

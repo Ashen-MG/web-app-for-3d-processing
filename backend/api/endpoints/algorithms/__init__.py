@@ -9,10 +9,14 @@ class AlgorithmView(SwaggerView):
 		super().__init__()
 		self.algorithmsParameters = algorithmParameters
 		self.algorithmFunction = algorithmFunction
-		self.requestParameters = ["token", "version", "fileVersion"] + list(algorithmParameters)
+		self.requestParameters = ["token", "version", "fileExtension"] + list(algorithmParameters)
 
 	@swag_from("voxel_downsampling/put.yml", endpoint="voxel_downsampling")
 	@swag_from("poisson_sampling/put.yml", endpoint="poisson_sampling")
+	@swag_from("edge_extraction/put.yml", endpoint="edge_extraction")
+	@swag_from("poisson_surface_reconstruction/put.yml", endpoint="poisson_surface_reconstruction")
+	@swag_from("remove_outliers/statistical/put.yml", endpoint="statistical_outlier_removal")
+	@swag_from("remove_outliers/radius/put.yml", endpoint="radius_outlier_removal")
 	def put(self):
 		if not request.json:
 			return {"message": "Missing JSON parameters."}, 400

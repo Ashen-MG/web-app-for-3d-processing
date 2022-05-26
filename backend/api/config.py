@@ -8,5 +8,5 @@ Note: Use '/' in directory paths, linux might have problems with '\' (creating f
 UPLOADS_FOLDER = "uploads"
 SAVING_FOLDER = fr"static/{UPLOADS_FOLDER}"
 EXPORTS_FOLDER = fr"static/exports"
-ALLOWED_EXTENSIONS = {"ply", "pcd", "xyz", "xyzrgb", "pts"}
-ALLOWED_MESH_EXTENSIONS = {"ply"}
+ALLOWED_EXTENSIONS = ["ply", "pcd", "xyz", "xyzrgb", "pts"]
+ALLOWED_MESH_EXTENSIONS = ["ply"]

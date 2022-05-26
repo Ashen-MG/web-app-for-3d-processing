@@ -1,0 +1,29 @@
+Upload a 3D model.
+---
+consumes:
+ - multipart/form-data
+parameters:
+ - in: formData
+   name: file
+   type: file
+   description: 3D model file.
+responses:
+  200:
+    description: File has been successfully saved.
+    schema:
+      type: "object"
+      properties:
+        token:
+          type: string
+        fileExtension:
+          type: string
+        version:
+          type: integer
+          example: 1
+        highestVersion:
+          type: integer
+          example: 1
+  400:
+    description: Missing required parameter, invalid input or value of some parameter.
+  500:
+    description: Internal server error.

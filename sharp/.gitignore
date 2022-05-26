@@ -1,0 +1,12 @@
+.idea
+__pycache__
+venv
+datasets/*
+!datasets/.keep
+saved_models
+checkpoints
+sharp.egg-info
+.vs
+predictions.png
+history.png
+saved-model

@@ -1,4 +1,4 @@
-Voxel Downsampling
+Voxel downsampling.
 ---
 parameters:
   - name: body
