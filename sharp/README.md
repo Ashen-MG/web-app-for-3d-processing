@@ -66,9 +66,22 @@ cloud with shifted points.
 ### Generate new point clouds
 `models/autoencoder.py`
 
-Using PointNet as encoder and MLP as decoder to generate new point clouds closer to ground truth.
+Using PointNet [[1]](#1) as encoder and MLP as decoder to generate 
+new point clouds closer to ground truth. We're training the model with Chamfer
+distance defined in [[2]](#2).
 
 ## Pushing new changes
 - pip freeze > requirements.txt if there are new or updated libraries that weren't manually or
 automatically by some software added to the requirements.txt.
 - Remove project package from the requirements.txt created by `pip install -e .` command.
+
+## References
+<a id="1">[1]</a>
+Charles Ruizhongtai Qi et al. “PointNet: Deep Learning on Point Sets for 
+3D Classification and Segmentation”. In: CoRR abs/1612.00593 (2016).
+arXiv: 1612.00593. url: http://arxiv.org/abs/1612.00593.
+
+<a id="2">[2]</a>
+Haoqiang Fan, Hao Su, and Leonidas J. Guibas. “A Point Set Generation Network for
+3D Object Reconstruction from a Single Image”. In: CoRR abs/1612.00603 (2016).
+arXiv: 1612.00603. url: http://arxiv.org/abs/1612.00603.
