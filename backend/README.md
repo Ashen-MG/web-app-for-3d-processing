@@ -1,5 +1,5 @@
 ## Installation
-Python virtual environment from 
+Create Python virtual environment from 
 Python 3.7.6. (or 3.7.7. if distribution versions of python libraries don't exist)
 ```
 python -m venv venv
@@ -21,17 +21,18 @@ Install project as package
 pip install -e .
 ```
 
-Prerequisites for open3d on ubuntu:
+Prerequisites for open3d on Ubuntu:
 `apt-get install ffmpeg libsm6 libxext6 -y`
 
 ## Development
-In create python venv run
+In created python venv run
 ```
 python api/app.py dev
 ```
-Note: `python api/app.py prod` might be useful to simulate production version
-during the development but Flask doesn't recommend it as real production
-server (see <a href="#deployment-ubuntu-linux">Deployment</a> section).
+Note: python api/app.py prod might be useful to simulate the production version 
+during the development but Flask 
+doesn't recommend it as a real production server 
+(see <a href="#deployment-ubuntu-linux">Deployment</a> section).
 
 ### Conventions
 Endpoints are defined as rules in `api/app.py` by filling up url, view, and 
@@ -43,11 +44,11 @@ All algorithms available within the back-end are generalized with
 `api/endpoints/algorithms/__init__.py`.
 
 Therefore, defining a new endpoint with functionality different that a new
-algorithm should be defined in `api/endpoints` folder. Its functionality is
-than defined directly in the view or in external class/function
+algorithm should be made in `api/endpoints` folder. Its functionality is
+then coded directly in the view or in an external class/function
 (i.e. `api/new_functionality_name/__init__.py`).
 
-if new adding a new algorithm is desired, create rule and use `AlgorithmView`
+If adding a new algorithm is desired, create a rule and use `AlgorithmView`
 ```python
 app.add_url_rule(
 	"/api/algorithms/new-algorithm-name",
@@ -59,7 +60,7 @@ app.add_url_rule(
 	methods=["PUT"]
 )
 ```
-where `algorithmFunction` should be defined in 
+where `algorithmFunction` should be specified in 
 `api/algorithms/new_algorithm_name/__init__.py` with arguments
 ```python
 algorithmFunction(currentFilePath: str, outputFilepath: str, algorithmFunctionArg1, algorithmFunctionArg2, ..., algorithmFunctionArgN)
@@ -68,7 +69,7 @@ where `algorithmFunctionArg1, algorithmFunctionArg2, ..., algorithmFunctionArgN`
 are names (keys) of request JSON parameters that this algorithm (route) takes.
 
 ## State of an uploaded 3D model
-Uploading a new 3D model (i.e. using upload endpoint) results in 
+Uploading a new 3D model (i.e. using upload endpoint) results in the
 following response (state)
 ```
 {
@@ -78,7 +79,7 @@ following response (state)
     highestVersion: 1
 }
 ```
-where the above state is used to access the file in format
+where the above state is used to access the file in a format
 `api/static/uploads/token/version.fileExtension`.
 By applying an algorithm, the API returns a new state, where `token` stays
 the same, `fileExtension` might change, `version` and `highestVersion`
@@ -92,7 +93,6 @@ Learn more about each endpoint by visiting `/apidocs`.
 ## Deployment (ubuntu linux)
 Do <a href="#installation">Installation</a> on a remote server.
 
-Flask in production needs to be served with a WSGI HTTP server.<br>
 Install
 ```
 apt install gunicorn3
@@ -104,7 +104,7 @@ gunicorn3 -b 0.0.0.0:API_PORT_NUMBER app:app
 ```
 from `api` directory we start a WSGI HTTP production server.
 Ideally, run the gunicorn3 WSGI server automatically in the 
-background e.g. using bash script
+background e.g. by using a bash script
 ```
 #!/bin/bash
 
@@ -140,4 +140,4 @@ server {
 
 ### Tips
 - Letsencrypt certificates are easy to generate in nginx configuration with a certbot --nginx util.
-- Supervisor might be used to control automatically gunicorn and flask backend.
+- Supervisor or similar tools are useful to automatically control gunicorn.

@@ -2,7 +2,7 @@
 Config is loaded to an instance of flask application in api/app.py.
 Access by app.config["varName"] or in the context of a request in an external file by
 importing `from flask import current_app` and calling current_app.config["varName"].
-Note: Use '/' in directory paths, linux might have problems with '\' (creating folder with name 'x\y' instead of x\y).
+Note: Use '/' in directory paths, Linux might have problems with '\' (creating a folder with the name 'x\y' instead of x\y).
 """
 
 UPLOADS_FOLDER = "uploads"
