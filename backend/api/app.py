@@ -8,8 +8,8 @@ from algorithms.remove_outliers.radius import radiusOutlierRemoval
 from algorithms.edge_extraction import edgeExtraction
 from algorithms.poisson_sampling import poissonSampling
 from algorithms.poisson_surface_reconstruction import poissonSurfaceReconstruction
-from algorithms.ml.predict_offsets import predict as predictOffsets
-from algorithms.ml.predict_offsets_edges import predict as predictEdgeOffsets
+from algorithms.ml.sharpen_point_cloud import predict as sharpenPointCloud
+from algorithms.ml.sharpen_point_cloud_edges import predict as sharpenPointCloudEdges
 from flask import Flask
 from flask import json
 from flask_limiter import Limiter
@@ -147,13 +147,13 @@ app.add_url_rule(
 
 app.add_url_rule(
 	"/api/algorithms/ml/sharpen-point-cloud",
-	view_func=endpoints.algorithms.AlgorithmView.as_view("ml_predict_offsets", predictOffsets),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("ml_sharpen_point_cloud", sharpenPointCloud),
 	methods=["PUT"]
 )
 
 app.add_url_rule(
 	"/api/algorithms/ml/sharpen-point-cloud-edges",
-	view_func=endpoints.algorithms.AlgorithmView.as_view("ml_predict_offsets_edges", predictEdgeOffsets),
+	view_func=endpoints.algorithms.AlgorithmView.as_view("ml_sharpen_point_cloud_edges", sharpenPointCloudEdges),
 	methods=["PUT"]
 )
 

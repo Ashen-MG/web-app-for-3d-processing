@@ -8,7 +8,6 @@ class AlgorithmView(SwaggerView):
 	""" Generalized endpoint view for available algorithms within the API. """
 
 	def __init__(self, algorithmFunction: Callable[[str, str, tuple], Tuple[bool, str]], *algorithmParameters):
-		""" TODO """
 		super().__init__()
 		self.algorithmsParameters = algorithmParameters
 		self.algorithmFunction = algorithmFunction
@@ -20,6 +19,8 @@ class AlgorithmView(SwaggerView):
 	@swag_from("/algorithms/poisson_surface_reconstruction/put.yml", endpoint="poisson_surface_reconstruction")
 	@swag_from("/algorithms/remove_outliers/statistical/put.yml", endpoint="statistical_outlier_removal")
 	@swag_from("/algorithms/remove_outliers/radius/put.yml", endpoint="radius_outlier_removal")
+	@swag_from("/algorithms/ml/sharpen_point_cloud/put.yml", endpoint="ml_sharpen_point_cloud")
+	@swag_from("/algorithms/ml/sharpen_point_cloud_edges/put.yml", endpoint="ml_sharpen_point_cloud_edges")
 	def put(self):
 		if not request.json:
 			return {"message": "Missing JSON parameters."}, 400

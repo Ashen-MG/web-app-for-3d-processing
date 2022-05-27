@@ -31,7 +31,7 @@ python api/app.py dev
 ```
 Note: `python api/app.py prod` might be useful to simulate production version
 during the development but Flask doesn't recommend it as real production
-server (see <a href="#deployment">Deployment</a> section).
+server (see <a href="#deployment-ubuntu-linux">Deployment</a> section).
 
 ### Conventions
 Endpoints are defined as rules in `api/app.py` by filling up url, view, and 
@@ -70,7 +70,7 @@ are names (keys) of request JSON parameters that this algorithm (route) takes.
 ## State of an uploaded 3D model
 Uploading a new 3D model (i.e. using upload endpoint) results in 
 following response (state)
-```json
+```
 {
     fileExtension: "ply" | "pcd" | "xyz" | "xyzrgb" | "pts",
     token: "random token",
