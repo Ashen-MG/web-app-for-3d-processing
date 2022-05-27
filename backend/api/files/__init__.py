@@ -1,5 +1,5 @@
 from os.path import join as joinPath
-from os import mkdir  # TODO?: makedirs
+from os import mkdir
 from random import choices as randomChoices
 from string import ascii_lowercase as letters
 from string import digits
@@ -7,6 +7,8 @@ from werkzeug.datastructures import FileStorage
 from typing import List
 
 class File:
+	""" Helper class to manage user file. """
+
 	def __init__(self, file: FileStorage, appRootPath: str, allowedExtensions: List[str], savingFolder: str, exportsFolder: str):
 		self.appRootPath = appRootPath
 		self.uploadedFile = file
@@ -19,9 +21,6 @@ class File:
 		return "." in fileName and fileName.split(".")[-1].lower() in self.allowedExtensions
 
 	def save(self, dirName: str, version: int) -> (str, str):
-		"""
-		:returns saved file name
-		"""
 		fileExtension = self.uploadedFile.filename.split(".")[-1].lower()
 		absoluteDirPath: str = self._getAbsoluteSavingPath(dirName)
 		mkdir(absoluteDirPath)
