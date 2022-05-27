@@ -24,11 +24,11 @@ ORDERED = True
 
 """
 EDGES_ONLY = True:
-	Running `utils/dataset.py` will create h5py dataset of NUM_POINTS x 3 point cloud extracted edges from corrupted mesh scans 
-	and ground truth sharp edges.
+	Running `utils/dataset.py` will create an h5py dataset of NUM_POINTS x 3 point cloud extracted edges from 
+	corrupted mesh scans and ground truth sharp edges.
 	Models are going to be trained on edges only. 
 EDGES_ONLY = False:
-	Running `utils/dataset.py` will create h5py dataset of NUM_POINTS x 3 point cloud from corrupted mesh scans 
+	Running `utils/dataset.py` will create an h5py dataset of NUM_POINTS x 3 point cloud from corrupted mesh scans 
 	and ground truth CAD models.
 	Models are going to be trained on whole 3D scans.
 """

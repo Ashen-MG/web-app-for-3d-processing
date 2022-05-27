@@ -81,9 +81,7 @@ modelCheckpointCallback = tf.keras.callbacks.ModelCheckpoint(
 history = newModel.fit(trainDataset, epochs=10, validation_data=testDataset, callbacks=[modelCheckpointCallback])
 visualizeHistory(history, title=None)
 
-# TODO
-newModel.save("saved-model")
-quit(1)
+# newModel.save("saved-model")
 # newModel = keras.models.load_model("model", compile=False)
 
 predictions = newModel.predict(trainScanPoints)

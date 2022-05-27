@@ -1,8 +1,8 @@
+""" Source: https://stackoverflow.com/questions/47060685/chamfer-distance-between-two-point-clouds-in-tensorflow/54767428 """
+
 import tensorflow as tf
 from scipy.spatial import KDTree
 import numpy as np
-
-# https://stackoverflow.com/questions/47060685/chamfer-distance-between-two-point-clouds-in-tensorflow/54767428
 
 def distance_matrix(array1, array2):
 	"""

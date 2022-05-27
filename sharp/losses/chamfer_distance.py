@@ -1,8 +1,8 @@
+""" Source: https://stackoverflow.com/questions/54705569/is-it-possible-to-build-a-custom-loss-function-of-chamfer-distance-using-keras """
+
 import keras.backend as K
 import tensorflow as tf
 from config import NUM_POINTS
-
-# https://stackoverflow.com/questions/54705569/is-it-possible-to-build-a-custom-loss-function-of-chamfer-distance-using-keras
 
 def dists_mat_calculater(pnts_t, pnts_p):
 	"""

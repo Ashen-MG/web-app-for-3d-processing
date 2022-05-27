@@ -118,6 +118,22 @@ const initialState: GlobalState = {
 			]
 		},
 		{
+			name: "Fixed Sampling",
+			category: AlgorithmCategory.SAMPLING,
+			apiPath: "/algorithms/fixed-sampling",
+			parameters: [
+				{
+					placeholder: "Number of points",
+					apiKey: "numberOfPoints",
+					range: {
+						min: 1,
+						max: 100000,
+						step: 1
+					}
+				}
+			]
+		},
+		{
 			name: "Statistical Outlier Removal",
 			category: AlgorithmCategory.DENOISE,
 			apiPath: "/algorithms/statistical-outlier-removal",

@@ -1,0 +1,29 @@
+Sample point cloud to a fixed number of points N by applying voxel downsampling while a number of points M <= N, then if   
+M < N, upsample by adding a point between two nearest neighbors.
+---
+parameters:
+  - name: body
+    in: body
+    type: object
+    schema:
+      type: object
+      properties:
+        token:
+          type: string
+          example: someToken
+        version:
+          type: integer
+          example: 1
+        fileExtension:
+          type: string
+          example: ply
+        numberOfPoints:
+          type: number
+          example: 2048
+responses:
+  200:
+    description: The algorithm has been successfully applied.
+  400:
+    description: Missing JSON header, missing required parameter, invalid input or value of some parameter.
+  500:
+    description: Internal server error (e.g. unexpected situation while applying the algorithm).

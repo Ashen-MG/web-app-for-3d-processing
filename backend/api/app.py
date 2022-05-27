@@ -7,6 +7,7 @@ from algorithms.remove_outliers.statistical import statisticalOutlierRemoval
 from algorithms.remove_outliers.radius import radiusOutlierRemoval
 from algorithms.edge_extraction import edgeExtraction
 from algorithms.poisson_sampling import poissonSampling
+from algorithms.fixed_sampling import samplePointCloudToFixPoints
 from algorithms.poisson_surface_reconstruction import poissonSurfaceReconstruction
 from algorithms.ml.sharpen_point_cloud import predict as sharpenPointCloud
 from algorithms.ml.sharpen_point_cloud_edges import predict as sharpenPointCloudEdges
@@ -130,6 +131,12 @@ app.add_url_rule(
 app.add_url_rule(
 	"/api/algorithms/poisson-sampling",
 	view_func=endpoints.algorithms.AlgorithmView.as_view("poisson_sampling", poissonSampling, "numberOfPoints"),
+	methods=["PUT"]
+)
+
+app.add_url_rule(
+	"/api/algorithms/fixed-sampling",
+	view_func=endpoints.algorithms.AlgorithmView.as_view("fixed_sampling", samplePointCloudToFixPoints, "numberOfPoints"),
 	methods=["PUT"]
 )
 

@@ -15,6 +15,7 @@ class AlgorithmView(SwaggerView):
 
 	@swag_from("/algorithms/voxel_downsampling/put.yml", endpoint="voxel_downsampling")
 	@swag_from("/algorithms/poisson_sampling/put.yml", endpoint="poisson_sampling")
+	@swag_from("/algorithms/fixed_sampling/put.yml", endpoint="fixed_sampling")
 	@swag_from("/algorithms/edge_extraction/put.yml", endpoint="edge_extraction")
 	@swag_from("/algorithms/poisson_surface_reconstruction/put.yml", endpoint="poisson_surface_reconstruction")
 	@swag_from("/algorithms/remove_outliers/statistical/put.yml", endpoint="statistical_outlier_removal")
