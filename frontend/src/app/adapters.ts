@@ -1,3 +1,5 @@
+/** Adapters, functions that call the back-end API. */
+
 import {axiosProvider as axios} from "app/axios_provider";
 import {AxiosResponse} from "axios";
 import {BackendState} from "./context/globalSlice";
@@ -28,7 +30,7 @@ export const apiConvert = (props: {file: File, convertTypes: string[]}): Promise
 	return axios.post("/convert", formData);
 }
 
-/**
- * Note: Random string as query parameter is added to prevent browser from showing cached results. */
+/** Access back-end file based on `backendState`.
+ *  Note: Random string as query parameter is added to prevent browser from showing cached results. */
 export const getStaticURI = (backendState: BackendState): string =>
 	`/static/uploads/${backendState.token}/v${backendState.version}.${backendState.fileExtension}?=${getRandomString(32)}`;

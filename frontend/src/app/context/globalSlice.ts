@@ -1,3 +1,5 @@
+/** All available reducer functions. */
+
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {FormControlProps} from "react-bootstrap/FormControl";
 
@@ -210,6 +212,14 @@ const initialState: GlobalState = {
 	]
 }
 
+/**
+ * This slice for Redux store contains:
+ * 		- Available algorithms within the app.
+ *  	- Fullscreen mode.
+ *  	- Export/Convert modal visibility.
+ *  	- Visualization mode.
+ *  	- Back-end state of 3D model that's being currently processed.
+ */
 export const globalSlice = createSlice({
 	name: "global",
 	initialState,

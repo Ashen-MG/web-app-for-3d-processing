@@ -38,13 +38,7 @@ import {
 	Folder2Open
 } from "react-bootstrap-icons";
 
-/** Top control panel = navigation menu.
- *  Functionality:
- *    - upload to frontend and backend
- *    - pick algorithms
- *    - convert
- *    - switch fullscreen mode.
- * */
+/** Top control panel = navigation menu. */
 export const TopControlPanel = ({setUploadedFile}: UploadFileProps) => {
 
 	const dispatch = useDispatch();
@@ -87,7 +81,6 @@ export const TopControlPanel = ({setUploadedFile}: UploadFileProps) => {
 		if (file !== undefined) {
 			const reader: FileReader = new FileReader();
 			reader.onload = () => {
-				// TODO: json doesn't have to be correct
 				dispatch(setBackendState(JSON.parse(reader.result as string)));
 			}
 			reader.readAsText(file)

@@ -34,8 +34,7 @@ export const App = () => {
   }, [fullscreenOn]);
 
   /** Uploaded 3D model (1. version).
-   *  Unfortunately, we can't use Redux to store File since it isn't serializable.
-   */
+   *  Unfortunately, we can't use Redux to store File since it isn't serializable. */
   const [uploadedFile, setUploadedFile] = useState<UploadFile>();
 
   return (
@@ -45,7 +44,7 @@ export const App = () => {
         <Scene uploadedFile={uploadedFile} />
         <SideControlPanel />
       </div>
-      <ConvertModal uploadedFile={uploadedFile} />
+      <ConvertModal />
       <ToastContainer limit={5} />
     </FullScreen>
   );

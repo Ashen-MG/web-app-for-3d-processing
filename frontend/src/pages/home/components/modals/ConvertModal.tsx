@@ -1,31 +1,30 @@
 import Select from "react-select";
 import React, {ChangeEvent, useState} from "react";
 import makeAnimated from "react-select/animated";
-import {Form, Modal} from "react-bootstrap";
+import {Modal} from "react-bootstrap";
 import {useAppSelector} from "app/hooks";
 import {RootState} from "app/store";
 import {useDispatch} from "react-redux";
 import {
 	ExportModal,
-	hideExportModal
+	hideExportModal, setAlgorithmInProgress, setBackendState
 } from "app/context/globalSlice";
-import {UploadedFileProp, UploadFile} from "app/App";
+import {UploadFile} from "app/App";
 import {useMutation} from "react-query";
 import {apiConvert, apiExport} from "app/adapters";
 import {createApiURI} from "app/helpers/global";
 import styles from "./styles/convert_modal.module.scss";
 import config from "config";
-import createSnackbar, {SnackTypes} from "components/Snackbar";
+import createSnackbar, {resolveSnackbar, SnackTypes} from "components/Snackbar";
+import {AxiosError, AxiosResponse} from "axios";
 
 type ModalMode = "Export" | "Convert";
 
-export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
+/** Modal for creating exports or conversions. */
+export const ConvertModal = () => {
 
 	const dispatch = useDispatch();
 	const exportModal: ExportModal = useAppSelector((state: RootState) => state.global.exportModal);
-
-	// TODO: show info about uploaded file in the modal
-
 	const mode: ModalMode = exportModal.convert ? "Convert" : "Export";
 
   return (
@@ -53,7 +52,7 @@ export const ConvertModal = ({uploadedFile}: UploadedFileProp) => {
 			  </Modal.Title>
 		  </Modal.Header>
 		  <Modal.Body>
-			  <ModalBody uploadedFile={uploadedFile} mode={mode}/>
+			  <ModalBody mode={mode}/>
 		  </Modal.Body>
 		  <Modal.Footer>
 			  <button className="btn btn-dark" onClick={() => dispatch(hideExportModal())}>
@@ -71,24 +70,23 @@ export interface ConversionOptions {
 
 const animatedComponents = makeAnimated();
 
-// TODO: load labels from config
-const conversionOptions: ConversionOptions[] = [
-	{value: "ply", label: "ply"},
-	{value: "xyz", label: "xyz"},
-	{value: "xyzrgb", label: "xyzrgb"},
-	{value: "pts", label: "pts"},
-	{value: "pcd", label: "pcd"}
-]
+const conversionOptions: ConversionOptions[] = config.acceptedFileExtensionsForConversionOnly.split(",").map(
+	fileExtension => {
+		const value = fileExtension.trim().replace(".", "");
+		return {value: value, label: value }
+	}
+);
 
-const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) => {
+const ModalBody = ({mode}: {mode: ModalMode}) => {
 
-	const dispatch = useDispatch();
 	const backendState = useAppSelector((state: RootState) => state.global.backendState);
 	const exportModal: ExportModal = useAppSelector((state: RootState) => state.global.exportModal);
 	const [selectedConversionOptions, setSelectedConversionOptions] = useState<ConversionOptions[]>([]);
 	const [downloadURI, setDownloadURI] = useState<string | undefined>();
-
 	const [convertFile, setConvertFile] = useState<UploadFile>();
+	const [conversionInProgress, setConversionInProgress] = useState<boolean>(false);
+
+	const toastId = "conversionInProgressToast";
 
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
 		// file will be undefined if user closes a file dialog without picking some file
@@ -97,36 +95,37 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 			setConvertFile(file);
 	}
 
-	const exportMutation = useMutation(apiExport, {
-		onSuccess: (response) => {
+	const handleMutationResponse = {
+		onSuccess: (response: AxiosResponse) => {
+			resolveSnackbar(toastId, `${exportModal.convert ? "Conversion" : "Export"} finished.`, true);
 			setDownloadURI(createApiURI(response.data.fileURL));
 		},
-		onError: (error) => {
-			console.error(error);
+		onError: (error: AxiosError) => {
+			resolveSnackbar(toastId, `${error.response === undefined ? "Something went wrong." : `${error.response.data.message}`}`, false);
+		},
+		onSettled: () => {
+			setConversionInProgress(false);
 		}
-	});
+	}
 
-	const convertMutation = useMutation(apiConvert, {
-		onSuccess: (response) => {
-			setDownloadURI(createApiURI(response.data.fileURL));
-		},
-		onError: (error) => {
-			console.error(error);
-		}
-	});
+	const exportMutation = useMutation(apiExport, handleMutationResponse);
+	const convertMutation = useMutation(apiConvert, handleMutationResponse);
 
 	const handleExportClick = () => {
 		if (selectedConversionOptions.length === 0) {
 			createSnackbar("You have to pick some conversion types.", SnackTypes.warning);
+			return;
 		}
-		else if (exportModal.convert) {
+		if (exportModal.convert) {
 			if (convertFile === undefined) return;
+			createSnackbar("Converting...", SnackTypes.loading, 5000, toastId);
 			convertMutation.mutate({
 				file: convertFile,
 				convertTypes: selectedConversionOptions.map((convertType) => convertType.value)
 			});
 		}
 		else {
+			createSnackbar("Exporting...", SnackTypes.loading, 5000, toastId);
 			exportMutation.mutate({
 				token: backendState!.token,
 				version: backendState!.version,
@@ -135,6 +134,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 				convertTypes: selectedConversionOptions.map((convertType) => convertType.value)
 			});
 		}
+		setConversionInProgress(true);
 	}
 
 	return (<>
@@ -159,7 +159,7 @@ const ModalBody = ({uploadedFile, mode}: UploadedFileProp & {mode: ModalMode}) =
 				<button
 					onClick={handleExportClick}
 					disabled={selectedConversionOptions.length === 0 || (backendState === undefined && !exportModal.convert) ||
-										(convertFile === undefined && exportModal.convert)
+										(convertFile === undefined && exportModal.convert) || conversionInProgress
 									 }
 					className="btn btn-primary"
 				>

@@ -4,7 +4,7 @@ import {RootState} from "app/store";
 import {Algorithms} from "app/context/globalSlice";
 import {Algorithm} from "../algorithms/Algorithm";
 
-/** Sidebar algorithm and its parameters control panel. */
+/** Sidebar for a selected algorithm and its parameters. */
 export const SideControlPanel = () => {
 
 	const algorithms: Algorithms = useAppSelector((state: RootState) => state.global.algorithms);

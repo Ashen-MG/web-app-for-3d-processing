@@ -15,10 +15,13 @@ import {RootState} from "app/store";
 import createSnackbar, {resolveSnackbar, SnackTypes} from "components/Snackbar";
 import {Play} from "react-bootstrap-icons"
 import sidebarStyles from "../panels/styles/sidebar.module.scss";
-import styles from "./algorithm.module.scss";
+import styles from "./styles/algorithm.module.scss";
 import {OverlayTrigger, Tooltip} from "react-bootstrap";
 import {AxiosError} from "axios";
 
+/** Show correct form inputs for algorithm parameters passed in `props` and save their values in state.
+ *  Allow running the algorithm i.e. communicate with the back-end API, handle error/success responses, and mutate
+ *  back-end state in the redux store i.e. new version after the algorithm has been successfully applied. */
 export const Algorithm = (props: AlgorithmProps) => {
 
 	const dispatch = useDispatch();
@@ -26,6 +29,8 @@ export const Algorithm = (props: AlgorithmProps) => {
 	const algorithmInProgress: boolean = useAppSelector((state: RootState) => state.global.algorithmInProgress);
 
 	const [parameters, _setParameters] = useState<string[]>(Array(props.parameters.length).fill(""));
+
+	const toastId = "algorithmInProgressToast";
 
 	useEffect(() => {
 		_setParameters(Array(props.parameters.length).fill(""));
@@ -49,8 +54,6 @@ export const Algorithm = (props: AlgorithmProps) => {
 			dispatch(setAlgorithmInProgress(false));
 		}
 	});
-
-	const toastId = "testToast"
 
 	const applyAlgorithm = () => {
 		const apiAlgParams = props.parameters.map((p, i) => [p.apiKey, parseFloat(parameters[i])]);

@@ -13,6 +13,7 @@ export enum SnackTypes {
 /** Supported toast refs by type. The order must be the same as in `SnackTypes`. */
 const toasts = [toast.info, toast.warn, toast.error, toast.success, toast.loading];
 
+/** Wrapper function to simplify creating snackbars with react-toastify. */
 export default function createSnackbar(
 	msg: string | ReactNode,
 	type: SnackTypes,

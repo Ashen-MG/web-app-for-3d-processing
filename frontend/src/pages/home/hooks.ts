@@ -1,10 +1,7 @@
 import {useEffect, useState} from "react";
 import {UploadFile} from "app/App";
 
-// TODO: handle error if extension is correct but file is broken
 export const useFileReader = (uploadedFile: UploadFile): string | undefined => {
-
-	console.log(uploadedFile);
 
 	const [fileData, setFileData] = useState<string | undefined>();
 
