@@ -16,13 +16,10 @@ Install dependencies from `requirements.txt`
 ```
 pip install -r requirements.txt
 ```
-Install project as package
-```
-pip install -e .
-```
-
-Prerequisites for open3d on Ubuntu:
-`apt-get install ffmpeg libsm6 libxext6 -y`
+Notes:
+- Prerequisites for open3d on Ubuntu: `apt-get install ffmpeg libsm6 libxext6 -y`
+- Skip installations of `pywin32` and `pywinpty` included in the `requirements.txt`
+  on Linux.
 
 ## Development
 In created python venv run

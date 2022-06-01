@@ -167,7 +167,7 @@ const ModalBody = ({mode}: {mode: ModalMode}) => {
 				</button>
 			</div>
 			<div className={`ms-4`}>
-				{downloadURI !== undefined && <a href={downloadURI}>Download</a>}
+				{downloadURI !== undefined && <a href={downloadURI} target="_blank">Download</a>}
 			</div>
 		</div>
 	</>)
