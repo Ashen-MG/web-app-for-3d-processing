@@ -95,6 +95,13 @@ Install
 apt install gunicorn3
 apt install nginx
 ```
+
+Gunicorn might be needed to install in venv
+```
+pip install gunicorn
+```
+and using it from `venv/bin/gunicorn`.
+
 By running
 ```
 gunicorn3 -b 0.0.0.0:API_PORT_NUMBER app:app
@@ -111,7 +118,8 @@ exec PATH_TO_GUNICORN --chdir ${APP_PATH} app:app -b 0.0.0.0:API_PORT_NUMBER
 
 Nginx can be used as a web server and reverse proxy for the gunicorn server.
 Add nginx configuration in `/etc/nginx/sites-available/` that should
-link to `/etc/nginx/sites-enabled/`
+link to `/etc/nginx/sites-enabled/`. Example of nginx configuration for the back-end and front-end 
+deployment:
 ```
 server {
     # SSL configuration
@@ -119,17 +127,24 @@ server {
     listen [::]:PORT_NUMBER ssl;
     ssl_certificate     PATH/fullchain.pem;
     ssl_certificate_key PATH/privkey.pem;
+    
+    client_max_body_size 1000M;
 
     root PATH_TO_FRONTEND_BUILD;
 
-    index index.html index.htm index.nginx-debian.html;
+    index index.html;
     
-    server_name HTTP_ADDRESS_OR_IP;
+    server_name DOMAIN_NAME_OR_IP;
     
-    ...
-    
-    # API routing
-    location /api/ {
+    location / {
+        try_files $uri /index.html;
+    }
+  
+    location ~ ^/(api|static/uploads|static/exports|apidocs|flasgger_static)/ {
+        proxy_pass http://localhost:API_PORT_NUMBER;
+    }
+  
+    location /apispec.json {
         proxy_pass http://localhost:API_PORT_NUMBER;
     }
 }
